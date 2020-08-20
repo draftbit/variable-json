@@ -1,0 +1,31 @@
+{
+  "name": "request-body-ast",
+  "version": "0.1.0",
+  "sources": [
+    {
+      "dir": "src",
+      "subdirs": true
+    },
+    {
+      "dir": "__tests__",
+      "subdirs": true,
+      "type": "dev"
+    }
+  ],
+  "package-specs": {
+    "module": "commonjs",
+    "in-source": true
+  },
+  "suffix": ".bs.js",
+  "bs-dependencies": [
+    "@glennsl/bs-json",
+    "re-opaque",
+    "relude-parse"
+  ],
+  "bs-dev-dependencies": ["reason-jest"],
+  "warnings": {
+    "number": "-44-23",
+    "error": "+8+101"
+  },
+  "refmt": 3
+}

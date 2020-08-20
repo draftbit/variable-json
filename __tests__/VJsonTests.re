@@ -2,27 +2,41 @@ open Jest;
 open Expect;
 open VJson;
 
+let example =
+  parseExn(
+    "{
+            \"id\": {{id}},
+            \"color\": {{color}},
+            \"size\": {{size}},
+          }",
+  );
+
 module FindVariablesTests = {
   describe("findVariables", () => {
     test("it finds variables", () => {
-      let vJson =
-        parseExn(
-          "{
-            \"id\": {{id}},
-            \"color\": {{color}},
-            \"allSizes\": [\"small\", \"medium\", \"large\"],
-            \"size\": {{size}},
-          }",
-        );
-
-      expect(vJson->findVariables)
+      expect(example->findVariables)
       ->toEqual(
           JsSet.fromArray(
             [|"id", "color", "size"|]
             ->Belt.Array.map(VariableName.fromString),
           ),
-        );
+        )
     })
+  });
+};
+
+module ToJsonTests = {
+  describe("toJson", () => {
+    let variableToJson: VariableName.t => Js.Json.t =
+      vn =>
+        switch (vn->VariableName.toString) {
+        | "id" => Json.Encode.int(123)
+        | "color" => Json.Encode.string("pink")
+        | _ => Json.Encode.null
+        };
+
+    expect(example |> toJson(variableToJson))
+    ->toEqual([%raw {|{id: 123, size: null, color: "pink"}|}]);
   });
 };
 

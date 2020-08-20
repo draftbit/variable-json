@@ -9,31 +9,62 @@ module VariableName =
     {},
   );
 
-type ast =
+type vjson =
   | Null
   | Bool(bool)
   | Number(float)
   | String(string)
   | Variable(VariableName.t)
-  | Array(array(ast))
-  | Object(Js.Dict.t(ast));
+  | Array(array(vjson))
+  | Object(Js.Dict.t(vjson));
 
-let rec toJson =
+// Shorthand
+type t = vjson;
+
+// Traverse a JSON structure with a function
+let rec reduce: 'a. (vjson, 'a, ('a, vjson) => 'a) => 'a =
+  (vjson, result, f) => {
+    let newResult = f(result, vjson);
+    switch (vjson) {
+    | Bool(_)
+    | Null
+    | String(_)
+    | Number(_)
+    | Variable(_) => newResult
+    | Array(arr) =>
+      arr->Belt.Array.reduce(newResult, (r, j) => j->reduce(r, f))
+    | Object(obj) =>
+      obj
+      ->Js.Dict.values
+      ->Belt.Array.reduce(newResult, (r, j) => j->reduce(r, f))
+    };
+  };
+
+let rec toJson = variableToJson =>
   Json.Encode.(
     fun
     | Null => null
     | Bool(b) => b |> bool
     | Number(n) => n |> float
     | String(s) => s |> string
-    | Array(arr) => arr |> array(toJson)
-    | Object(d) => d |> dict(toJson)
-    | Variable(var) => object_([("__var__", var |> VariableName.toJson)])
+    | Array(arr) => arr |> array(toJson(variableToJson))
+    | Object(d) => d |> dict(toJson(variableToJson))
+    | Variable(var) => var |> variableToJson
   );
+
+let findVariables: vjson => JsSet.t(VariableName.t) =
+  root =>
+    root->reduce(JsSet.empty(), (vars, v) =>
+      switch (v) {
+      | Variable(vn) => vars->JsSet.addMut(vn)
+      | _ => vars
+      }
+    );
 
 module Parser = {
   include ReludeParse.Parser;
   let lexeme = p => p <* ws;
-  let parseNull: t(ast) = str("null") |> map(_ => Null) |> lexeme;
+  let parseNull: t(vjson) = str("null") |> map(_ => Null) |> lexeme;
   // Note: regex taken from https://rgxdb.com/r/1RSPF8MG, but the '$'
   // at the end has been omitted because it causes parse errors
   let floatRegex: Js.Re.t = [%re {|/^([-+]?\d*\.?\d+)/|}];
@@ -62,29 +93,32 @@ module Parser = {
     <?> "Valid variable names contain only letters, numbers and/or underscores, and must begin with a letter or underscore"
     |> map(VariableName.fromString);
 
-  let parseVariable: t(ast) =
+  let parseVariable: t(vjson) =
     parseVariableName
     |> between(str("{{"), str("}}"))
     |> map(vn => Variable(vn));
 
-  let rec parseArray: Lazy.t(t(array(ast))) =
+  let rec parseArray: Lazy.t(t(array(vjson))) =
     lazy(
       betweenSquares(
-        parseAstLazy->Lazy.force |> sepByOptEnd(str(",") |> lexeme),
+        parseVjsonLazy->Lazy.force |> sepByOptEnd(str(",") |> lexeme),
       )
       |> map(Belt.List.toArray)
       |> lexeme
     )
 
-  and parseObject: Lazy.t(t(Js.Dict.t(ast))) =
+  and parseObject: Lazy.t(t(Js.Dict.t(vjson))) =
     lazy({
-      let parseKeyValuePair: t((string, ast)) =
-        tuple2(parseString <* str(":") |> lexeme, parseAstLazy->Lazy.force);
+      let parseKeyValuePair: t((string, vjson)) =
+        tuple2(
+          parseString <* str(":") |> lexeme,
+          parseVjsonLazy->Lazy.force,
+        );
       betweenCurlies(parseKeyValuePair |> sepByOptEnd(str(",") |> lexeme))
       |> map(pairs => pairs->Belt.List.toArray->Js.Dict.fromArray);
     })
 
-  and parseAstLazy: Lazy.t(t(ast)) =
+  and parseVjsonLazy: Lazy.t(t(vjson)) =
     lazy(
       parseNull
       <|> (parseString |> map(s => String(s)))
@@ -99,12 +133,10 @@ module Parser = {
          )
     );
 
-  let parseAst = parseAstLazy->Lazy.force;
-
-  let parse: string => result(ast, ParseError.t) =
-    input => parseAst <* eof |> runParser(input);
+  let parseVjson = parseVjsonLazy->Lazy.force;
 };
 
-/* Js.log( */
-/*   Parser.(parseAst |> runParser("[{{a1}},{{a2}}]"))->Belt.Result.map(toJson), */
-/* ); */
+let parse: string => result(vjson, ReludeParse.Parser.ParseError.t) =
+  input => Parser.(parseVjson <* eof |> runParser(input));
+
+let parseExn: string => vjson = input => input->parse->Belt.Result.getExn;

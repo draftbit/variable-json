@@ -1,10 +1,34 @@
 open Jest;
 open Expect;
-open JsonWithVariables;
+open VJson;
+
+module FindVariablesTests = {
+  describe("findVariables", () => {
+    test("it finds variables", () => {
+      let vJson =
+        parseExn(
+          "{
+            \"id\": {{id}},
+            \"color\": {{color}},
+            \"allSizes\": [\"small\", \"medium\", \"large\"],
+            \"size\": {{size}},
+          }",
+        );
+
+      expect(vJson->findVariables)
+      ->toEqual(
+          JsSet.fromArray(
+            [|"id", "color", "size"|]
+            ->Belt.Array.map(VariableName.fromString),
+          ),
+        );
+    })
+  });
+};
 
 module ParserTests = {
   let expectOkParse = (input, output) =>
-    expect(Parser.parse(input))->toEqual(Ok(output));
+    expect(parse(input))->toEqual(Ok(output));
 
   describe("null", () => {
     test("single value", () =>
@@ -17,13 +41,13 @@ module ParserTests = {
 
   describe("bools", () => {
     test("true", () =>
-      expect(Parser.parse("true"))->toEqual(Ok(Bool(true)))
+      expect(parse("true"))->toEqual(Ok(Bool(true)))
     );
     test("false", () =>
-      expect(Parser.parse("false"))->toEqual(Ok(Bool(false)))
+      expect(parse("false"))->toEqual(Ok(Bool(false)))
     );
     test("with trailing whitespace", () =>
-      expect(Parser.parse("false   "))->toEqual(Ok(Bool(false)))
+      expect(parse("false   "))->toEqual(Ok(Bool(false)))
     );
   });
 

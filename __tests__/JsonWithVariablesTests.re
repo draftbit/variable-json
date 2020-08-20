@@ -3,8 +3,8 @@ open Expect;
 open JsonWithVariables;
 
 module ParserTests = {
-let expectOkParse = (input, output) =>
-  expect(Parser.parse(input))->toEqual(Ok(output));
+  let expectOkParse = (input, output) =>
+    expect(Parser.parse(input))->toEqual(Ok(output));
 
   describe("null", () => {
     test("single value", () =>

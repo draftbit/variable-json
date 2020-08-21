@@ -1,5 +1,5 @@
 {
-  "name": "request-body-ast",
+  "name": "@draftbit/variable-json",
   "version": "0.1.0",
   "scripts": {
     "copy-git-hooks": "if [ -e ./hooks ]; then cp -v ./hooks/* ./.git/hooks; fi",

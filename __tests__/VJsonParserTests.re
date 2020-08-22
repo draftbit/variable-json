@@ -3,8 +3,32 @@ open Expect;
 open VJson;
 open VJsonParser;
 
+let expectParse = (input, handler) => {
+  //  let x: result('a, ReludeParse.Parser.error) = input->parse;
+  switch (input->parse, handler) {
+  | (Ok(vj), Ok(checks)) => vj->checks
+  | (Error(err), Error(checks)) => err->checks
+  | (Error(ReludeParse.Parser.ParseError.ParseError(message)), Ok(_)) =>
+    failwith("Expected an Ok result, but got error: " ++ message)
+  | (Ok(vj), Error(_)) =>
+    failwith(
+      "Expected an Error result, but successfully parsed: "
+      ++ Json.stringify(Obj.magic(vj)),
+    )
+  };
+};
+
+// Checks that parsing is successful and the output matches the expected.
 let expectOkParse = (input, output) =>
-  expect(parse(input))->toEqual(Ok(output));
+  input->expectParse(Ok(vj => expect(vj)->toEqual(output)));
+
+// Given checks to run on the error message, checks that parse fails in
+// the given manner.
+let expectParseFail = (input, errMessageChecks) =>
+  input->expectParse(Error(errMessageChecks));
+
+// Tests failure in a generic way, just that it's an Error of some kind.
+let expectSomeParseFail = input => input->expectParseFail(_ => ());
 
 module ParserTests = {
   describe("null", () => {
@@ -13,6 +37,14 @@ module ParserTests = {
     );
     test("array", () =>
       expectOkParse("[null, null]", Array([|Null, Null|]))
+    );
+    test("bad array (missing closing brackets)", () =>
+      expectParseFail("[ null, null", (ParseError(m)) =>
+        expect(m)->toEqual(stringContaining("]"))
+      )
+    );
+    test("bad array (no comma)", () =>
+      expectSomeParseFail("[ 1 true ]")
     );
   });
 
@@ -25,6 +57,9 @@ module ParserTests = {
     );
     test("with trailing whitespace", () =>
       expect(parse("false   "))->toEqual(Ok(Bool(false)))
+    );
+    test("with preceding  whitespace", () =>
+      expectOkParse("   true ", Bool(true))
     );
   });
 
@@ -55,6 +90,12 @@ module ParserTests = {
     );
     test("with internal quotes", () =>
       expectOkParse("\"hello \\\"world\\\"!\"", String("hello \"world\"!"))
+    );
+    test("unicode", () =>
+      expectOkParse(
+        "\"世界こんにちは！\"",
+        String("世界こんにちは！"),
+      )
     );
   });
 

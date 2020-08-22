@@ -1,24 +1,33 @@
 open VJson;
 include ReludeParse.Parser;
 
-let lexeme = p => p <* ws;
+// Run a parser and transparently consume all trailing whitespace.
+let lexeme: 'a. t('a) => t('a) = p => p <* ws;
+
+// Parse the "null" keyword"
 let parseNull: t(vjson) = str("null") |> map(_ => Null) |> lexeme;
+
 // Note: regex taken from https://rgxdb.com/r/1RSPF8MG, but the '$'
 // at the end has been omitted because it causes parse errors
 let floatRegex: Js.Re.t = [%re {|/^([-+]?\d*\.?\d+)(?:[eE]([-+]?\d+))?/|}];
 
+// Parse a number (float or int)
 let parseNumber: t(float) =
   regex(floatRegex)
   <?> "Not a valid number"
   |> map(Js.Float.fromString)
   |> lexeme;
 
+// Parse a boolean.
 let parseBool: t(bool) =
   str("true")
   |> map(_ => true)
   <|> (str("false") |> map(_ => false))
   |> lexeme;
 
+// Parse a string. Allows for escaped quotes.
+// NOTE: not to be confused with `parse`, which takes a raw string and parses
+// a whole AST -- this parses string literal syntax.
 let parseString: t(string) =
   betweenDoubleQuotes(
     many(str("\\\"") |> map(_ => "\"") <|> anyCharNotIn(["\""]))
@@ -26,16 +35,15 @@ let parseString: t(string) =
   )
   |> lexeme;
 
-let parseVariableName: t(VariableName.t) =
+// Parse a variable.
+let parseVariable: t(vjson) =
   regex(variableRegex)
   <?> "Valid variable names contain only letters, numbers and/or underscores, and must begin with a letter or underscore"
-  |> map(VariableName.fromString);
-
-let parseVariable: t(vjson) =
-  parseVariableName
   |> between(str("{{"), str("}}"))
-  |> map(vn => Variable(vn));
+  |> map(vn => Variable(VariableName.fromString(vn)));
 
+// Parse an array of VJson.
+// Define these as lazy because of mutual recursion.
 let rec parseArray: Lazy.t(t(array(vjson))) =
   lazy(
     betweenSquares(
@@ -70,9 +78,9 @@ and parseVjsonLazy: Lazy.t(t(vjson)) =
 
 let parseVjson = parseVjsonLazy->Lazy.force;
 
-// Parse a string into a VJson. Prefer to `parseExn` which
+// Parse a string into a VJson. Prefer to `parseExn` which can raise an exception.
 let parse: string => result(vjson, ReludeParse.Parser.ParseError.t) =
-  input => parseVjson <* eof |> runParser(input);
+  input => ws *> parseVjson <* eof |> runParser(input);
 
 // Parse a string
 let parseExn: string => vjson = input => input->parse->Belt.Result.getExn;

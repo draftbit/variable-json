@@ -152,15 +152,15 @@ module ParserTests = {
 
   describe("object", () => {
     test("empty", () =>
-      expectOkParse("{}", Object(Js.Dict.empty()))
+      expectOkParse("{}", Object(JsMap.empty()))
     );
     test("empty with whitespace", () =>
-      expectOkParse("{   }", Object(Js.Dict.empty()))
+      expectOkParse("{   }", Object(JsMap.empty()))
     );
     test("single key", () =>
       expectOkParse(
         "{\"x\": 1}",
-        Object([|("x", Number(1.0))|]->Js.Dict.fromArray),
+        Object([|("x", Number(1.0))|]->JsMap.fromArray),
       )
     );
     test("multiple keys", () =>
@@ -168,7 +168,7 @@ module ParserTests = {
         "{\"x\": 1, \"YYY\": \"hey there!\"}",
         Object(
           [|("x", Number(1.0)), ("YYY", String("hey there!"))|]
-          ->Js.Dict.fromArray,
+          ->JsMap.fromArray,
         ),
       )
     );
@@ -185,11 +185,11 @@ module ParserTests = {
                   ("z", Variable(VariableName.fromString("myZVariable"))),
                   ("blib", Array([|Number(123.0), String("hey there!")|])),
                 |]
-                ->Js.Dict.fromArray,
+                ->JsMap.fromArray,
               ),
             ),
           |]
-          ->Js.Dict.fromArray,
+          ->JsMap.fromArray,
         ),
       )
     );

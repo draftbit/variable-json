@@ -2,6 +2,10 @@ open Jest;
 open Expect;
 open VJson;
 
+let exampleJson: Js.Json.t = [%raw
+  {|{x: 1, y: 2, z: [1, 2, "hello"], q: { x: [false, true], y: null }}|}
+];
+
 let example =
   VJsonParser.parseExn(
     "{
@@ -28,12 +32,7 @@ module FindVariablesTests = {
 module FromJsonTests = {
   describe("fromJson", () => {
     test("nested object", () =>
-      expect(
-        [%raw
-          {|{x: 1, y: 2, z: [1, 2, "hello"], q: { x: [false, true], y: null }}|}
-        ]
-        ->fromJson,
-      )
+      expect(exampleJson->fromJson)
       ->toEqual(
           Object(
             [|
@@ -47,11 +46,11 @@ module FromJsonTests = {
                     ("x", Array([|Bool(false), Bool(true)|])),
                     ("y", Null),
                   |]
-                  ->Js.Dict.fromArray,
+                  ->JsMap.fromArray,
                 ),
               ),
             |]
-            ->Js.Dict.fromArray,
+            ->JsMap.fromArray,
           ),
         )
     )

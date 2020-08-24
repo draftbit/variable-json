@@ -72,7 +72,7 @@ and parseVjsonLazy: Lazy.t(t(vjson)) =
          parseArray->Lazy.force |> map(arr => Array(arr))
        )
     |> orElseLazy(~fallback=() =>
-         parseObject->Lazy.force |> map(d => Object(d))
+         parseObject->Lazy.force |> map(d => Object(d->JsMap.fromDict))
        )
   );
 

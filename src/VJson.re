@@ -1,3 +1,8 @@
+// Serialize a Map to JSON. This uses significant-data-last ordering for
+// mixing with encoders in `@glennsl/bs-json` (although it works standalone)
+let mapToJson = (innerToJson, m): Js.Json.t =>
+  m->JsMap.map(innerToJson)->JsMap.toDict->Js.Json.object_;
+
 let variableRegex = [%re {|/[a-zA-Z_][a-zA-Z0-9_]*/|}];
 module VariableName =
   Opaque.String.Make(
@@ -16,7 +21,7 @@ type vjson =
   | String(string)
   | Variable(VariableName.t)
   | Array(array(vjson))
-  | Object(Js.Dict.t(vjson));
+  | Object(JsMap.t(string, vjson));
 
 // Shorthand
 type t = vjson;
@@ -35,7 +40,7 @@ let rec reduce: 'a. (vjson, 'a, ('a, vjson) => 'a) => 'a =
       arr->Belt.Array.reduce(newResult, (r, j) => j->reduce(r, f))
     | Object(obj) =>
       obj
-      ->Js.Dict.values
+      ->JsMap.valuesArray
       ->Belt.Array.reduce(newResult, (r, j) => j->reduce(r, f))
     };
   };
@@ -49,18 +54,12 @@ let rec fromJson = json => {
   | JSONString(s) => String(s)
   | JSONNumber(n) => Number(n)
   | JSONArray(arr) => Array(arr->Belt.Array.map(fromJson))
-  | JSONObject(obj) =>
-    Object(
-      obj
-      ->Js.Dict.entries
-      ->Belt.Array.map(((k, v)) => (k, fromJson(v)))
-      ->Js.Dict.fromArray,
-    )
+  | JSONObject(obj) => Object(obj->JsMap.fromDict->JsMap.map(fromJson))
   };
 };
 
 // Translate to JSON, given a conversion function.
-let rec toJson = variableToJson =>
+let rec toJson = (variableToJson: VariableName.t => Js.Json.t) =>
   Json.Encode.(
     fun
     | Null => null
@@ -68,12 +67,15 @@ let rec toJson = variableToJson =>
     | Number(n) => n |> float
     | String(s) => s |> string
     | Array(arr) => arr |> array(toJson(variableToJson))
-    | Object(d) => d |> dict(toJson(variableToJson))
+    | Object(d) => d |> mapToJson(toJson(variableToJson))
     | Variable(var) => var |> variableToJson
   );
 
+// Convert to a string of valid vjson syntax.
+let toString: t => string = _ => failwith("");
+
 // Traverse the tree, returning a set of all of the variable names.
-let findVariables: vjson => JsSet.t(VariableName.t) =
+let findVariables: t => JsSet.t(VariableName.t) =
   root =>
     root->reduce(JsSet.empty(), (vars, v) =>
       switch (v) {

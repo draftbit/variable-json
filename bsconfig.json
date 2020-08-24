@@ -19,6 +19,7 @@
   "suffix": ".bs.js",
   "bs-dependencies": [
     "@glennsl/bs-json",
+    "bs-js-collections",
     "re-opaque",
     "relude-parse"
   ],

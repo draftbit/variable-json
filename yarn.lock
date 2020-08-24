@@ -863,8 +863,15 @@ bs-bastet@adnelson/bastet#no-bisect:
   dependencies:
     bs-stdlib-shims "^0.1.0"
 
-"bs-platform@file:../../../../../nix/store/lzfrmlflab90yz60rrnqcql5qz6n930h-bs-platform-7.3.1":
+bs-js-collections@^1.2.0:
+  version "1.2.0"
+  resolved "https://registry.yarnpkg.com/bs-js-collections/-/bs-js-collections-1.2.0.tgz#2fbe827fdcdf70ff79dd7ddb52d14517a9250be3"
+  integrity sha512-uq6aUG44OHy1sEleXyHP2FQPpjBa7QakPjN1OwgVCGSNTov5pnHHrppF/SDC7wMJ2b+b2RIg4oGvjR9MuiVAbg==
+
+bs-platform@7.3.1:
   version "7.3.1"
+  resolved "https://registry.yarnpkg.com/bs-platform/-/bs-platform-7.3.1.tgz#2c148fb8aef687c6c195eae5821b31e887fb5bc4"
+  integrity sha512-RlQexm6i2gMKsfuHL8IcOHN0R/SQgxiurP96fo2nj71QgQQRh332ahOwIl0p0yNl9DH2Tg7ZV2pjG6MMMkaU6w==
 
 bs-stdlib-shims@^0.1.0:
   version "0.1.0"

@@ -41,6 +41,43 @@ module SerializeTests = {
       "{{varvara}}",
     );
   });
+
+  test("complex json", () =>
+    expect(exampleJson->fromJson->toString(variableToString))
+    ->toMatchSnapshot()
+  );
+
+  test("complex with variables", () => {
+    let vj =
+      Build.(
+        object_([|
+          ("x", float(1.0)),
+          ("y", int(2)),
+          (
+            "z",
+            vjsonArray([|
+              float(1.0),
+              number(2.0),
+              variable(VariableName.fromString("vivvy")),
+            |]),
+          ),
+          (
+            "q",
+            object_([|
+              (
+                "x",
+                Array([|
+                  Bool(false),
+                  VariableName.fromString("oogabooga")->variable,
+                |]),
+              ),
+              ("y", variable(VariableName.fromString("yo"))),
+            |]),
+          ),
+        |])
+      );
+    expect(vj->toString(variableToString))->toMatchSnapshot();
+  });
 };
 
 module FromJsonTests = {

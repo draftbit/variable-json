@@ -1,0 +1,5 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`complex json 1`] = `"{\\"x\\": 1, \\"y\\": 2, \\"z\\": [1, 2, \\"hello\\"], \\"q\\": {\\"x\\": [false, true], \\"y\\": null]]"`;
+
+exports[`complex with variables 1`] = `"{\\"x\\": 1, \\"y\\": 2, \\"z\\": [1, 2, {{vivvy}}], \\"q\\": {\\"x\\": [false, {{oogabooga}}], \\"y\\": {{yo}}]]"`;

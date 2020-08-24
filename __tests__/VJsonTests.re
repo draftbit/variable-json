@@ -29,6 +29,20 @@ module FindVariablesTests = {
   });
 };
 
+module SerializeTests = {
+  let variableToString = VariableName.toString;
+  let expectSerialize = (vj, str) =>
+    expect(vj->toString(variableToString))->toEqual(str);
+  test("simple values", () => {
+    expectSerialize(Bool(true), "true");
+    expectSerialize(String("hello"), "\"hello\"");
+    expectSerialize(
+      Variable(VariableName.fromString("varvara")),
+      "{{varvara}}",
+    );
+  });
+};
+
 module FromJsonTests = {
   describe("fromJson", () => {
     test("nested object", () =>

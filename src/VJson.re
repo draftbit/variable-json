@@ -58,7 +58,8 @@ let rec fromJson = json => {
   };
 };
 
-// Translate to JSON, given a conversion function.
+// Translate to JSON, given a conversion function. Use sig-data-last for better
+// compatibility with `@glennsl/bs-json`.
 let rec toJson = (variableToJson: VariableName.t => Js.Json.t) =>
   Json.Encode.(
     fun
@@ -71,8 +72,19 @@ let rec toJson = (variableToJson: VariableName.t => Js.Json.t) =>
     | Variable(var) => var |> variableToJson
   );
 
-// Convert to a string of valid vjson syntax.
-let toString: t => string = _ => failwith("");
+// Convert to a string of valid vjson syntax, using whatever method to serialize a variable.
+// It's up to the user to guarantee that the variable name serializer produces valid output,
+// so be careful.
+let toString: (t, VariableName.t => string) => string =
+  (vj, variableToString) =>
+    switch (vj) {
+    | Null => "null"
+    | Bool(true) => "true"
+    | Bool(false) => "false"
+    | String(s) => Js.Json.(s->string->stringify)
+    | Variable(v) => "{{" ++ v->variableToString ++ "}}"
+    | _ => failwith("")
+    };
 
 // Traverse the tree, returning a set of all of the variable names.
 let findVariables: t => JsSet.t(VariableName.t) =

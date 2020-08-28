@@ -1,36 +1,35 @@
 open Jest;
 open Expect;
-open VJsonTypes;
-
-let config = VJsonVariable.regexConfig([%re {|/[a-zA-Z_][a-zA-Z0-9_]*/|}]);
+open VJson;
 
 let exampleJson: Js.Json.t = [%raw
   {|{x: 1, y: 2, z: [1, 2, "hello"], q: { x: [false, true], y: null }}|}
 ];
 
 let example =
-  VJsonVariable.parseWithConfig(
-    config,
-    "{
-            \"id\": {{id}},
-            \"color\": {{color}},
-            \"size\": {{size}},
-          }",
+  VJson.(
+    parseInCurlyBraces(
+      defaultParseVariable,
+      "{
+       \"id\": {{id}},
+       \"color\": {{color}},
+       \"size\": {{size}},
+     }",
+    )
   )
   ->Belt.Result.getExn;
 
 module FindVariablesTests = {
   describe("findVariables", () => {
     test("it finds variables", () => {
-      expect(example->VJsonOperations.findVariables)
-      ->toEqual([|"id", "color", "size"|])
+      expect(example->findVariables)->toEqual([|"id", "color", "size"|])
     })
   });
 };
 
 module SerializeTests = {
   let expectSerialize = (vj: vjson(string), str) =>
-    expect(config->VJsonVariable.toString(vj))->toEqual(str);
+    expect(vj |> VJson.serializeWrapCurlyBraces(s => s))->toEqual(str);
   test("simple values", () => {
     expectSerialize(Bool(true), "true");
     expectSerialize(String("hello"), "\"hello\"");
@@ -38,7 +37,7 @@ module SerializeTests = {
   });
 
   test("complex json", () =>
-    expect(exampleJson->VJsonBuilder.json->VJsonOperations.serialize(s => s))
+    expect(exampleJson->VJsonBuilder.json->VJson.serialize(s => s))
     ->toMatchSnapshot()
   );
 
@@ -61,7 +60,7 @@ module SerializeTests = {
           ),
         |])
       );
-    expect(vj->VJsonOperations.serialize(s => s))->toMatchSnapshot();
+    expect(vj->VJson.serialize(s => s))->toMatchSnapshot();
   });
 };
 
@@ -71,21 +70,24 @@ module FromJsonTests = {
       expect(exampleJson->VJsonBuilder.json)
       ->toEqual(
           Object(
-            [|
-              ("x", Number(1.0)),
-              ("y", Number(2.0)),
-              ("z", Array([|Number(1.0), Number(2.0), String("hello")|])),
-              (
-                "q",
-                Object(
-                  [|
-                    ("x", Array([|Bool(false), Bool(true)|])),
-                    ("y", Null),
-                  |]
-                  ->JsMap.fromArray,
+            VJsonBuilder.(
+              [|
+                ("x", number(1.0)),
+                ("y", number(2.0)),
+                (
+                  "z",
+                  [|number(1.0), number(2.0), string("hello")|]
+                  |> array(id),
                 ),
-              ),
-            |]
+                (
+                  "q",
+                  object_([|
+                    ("x", [|false, true|] |> array(bool)),
+                    ("y", null),
+                  |]),
+                ),
+              |]
+            )
             ->JsMap.fromArray,
           ),
         )

@@ -1,5 +1,4 @@
 include VJsonTypes;
-type t('a) = vjson('a);
 
 let null = Null;
 let bool = b => Bool(b);
@@ -18,6 +17,9 @@ let object_ = keyVals => Object(keyVals->JsMap.fromArray);
 
 let dict = (toVJson, dict) =>
   Object(dict->JsMap.fromDict->JsMap.map(toVJson));
+
+let jsMap = (keyToString, vToVJson, m) =>
+  Object(m->JsMap.mapEntries((k, v) => (k->keyToString, v->vToVJson)));
 
 let rec json = j => {
   switch (j->Js.Json.classify) {

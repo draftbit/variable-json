@@ -1,89 +1,74 @@
 open Jest;
 open Expect;
-open VJson;
+open VJsonTypes;
+
+let config = VJsonVariable.regexConfig([%re {|/[a-zA-Z_][a-zA-Z0-9_]*/|}]);
 
 let exampleJson: Js.Json.t = [%raw
   {|{x: 1, y: 2, z: [1, 2, "hello"], q: { x: [false, true], y: null }}|}
 ];
 
 let example =
-  VJsonParser.parseExn(
+  VJsonVariable.parseWithConfig(
+    config,
     "{
             \"id\": {{id}},
             \"color\": {{color}},
             \"size\": {{size}},
           }",
-  );
+  )
+  ->Belt.Result.getExn;
 
 module FindVariablesTests = {
   describe("findVariables", () => {
     test("it finds variables", () => {
-      expect(example->findVariables)
-      ->toEqual(
-          JsSet.fromArray(
-            [|"id", "color", "size"|]
-            ->Belt.Array.map(VariableName.fromString),
-          ),
-        )
+      expect(example->VJsonOperations.findVariables)
+      ->toEqual([|"id", "color", "size"|])
     })
   });
 };
 
 module SerializeTests = {
-  let variableToString = VariableName.toString;
-  let expectSerialize = (vj, str) =>
-    expect(vj->toString(variableToString))->toEqual(str);
+  let expectSerialize = (vj: vjson(string), str) =>
+    expect(config->VJsonVariable.toString(vj))->toEqual(str);
   test("simple values", () => {
     expectSerialize(Bool(true), "true");
     expectSerialize(String("hello"), "\"hello\"");
-    expectSerialize(
-      Variable(VariableName.fromString("varvara")),
-      "{{varvara}}",
-    );
+    expectSerialize(Variable("varvara"), "{{varvara}}");
   });
 
   test("complex json", () =>
-    expect(exampleJson->fromJson->toString(variableToString))
+    expect(exampleJson->VJsonBuilder.json->VJsonOperations.serialize(s => s))
     ->toMatchSnapshot()
   );
 
   test("complex with variables", () => {
     let vj =
-      Build.(
+      VJsonBuilder.(
         object_([|
           ("x", float(1.0)),
           ("y", int(2)),
           (
             "z",
-            vjsonArray([|
-              float(1.0),
-              number(2.0),
-              variable(VariableName.fromString("vivvy")),
-            |]),
+            vjsonArray([|float(1.0), number(2.0), variable("vivvy")|]),
           ),
           (
             "q",
             object_([|
-              (
-                "x",
-                Array([|
-                  Bool(false),
-                  VariableName.fromString("oogabooga")->variable,
-                |]),
-              ),
-              ("y", variable(VariableName.fromString("yo"))),
+              ("x", Array([|Bool(false), "oogabooga"->variable|])),
+              ("y", variable("yo")),
             |]),
           ),
         |])
       );
-    expect(vj->toString(variableToString))->toMatchSnapshot();
+    expect(vj->VJsonOperations.serialize(s => s))->toMatchSnapshot();
   });
 };
 
 module FromJsonTests = {
   describe("fromJson", () => {
     test("nested object", () =>
-      expect(exampleJson->fromJson)
+      expect(exampleJson->VJsonBuilder.json)
       ->toEqual(
           Object(
             [|
@@ -110,9 +95,9 @@ module FromJsonTests = {
 
 module ToJsonTests = {
   describe("toJson", () => {
-    let variableToJson: VariableName.t => Js.Json.t =
-      vn =>
-        switch (vn->VariableName.toString) {
+    let variableToJson: string => Js.Json.t =
+      v =>
+        switch (v) {
         | "id" => Json.Encode.int(123)
         | "color" => Json.Encode.string("pink")
         | _ => Json.Encode.null

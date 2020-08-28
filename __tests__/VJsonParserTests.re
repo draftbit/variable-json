@@ -1,11 +1,12 @@
 open Jest;
 open Expect;
-open VJson;
-open VJsonParser;
+open VJsonTypes;
+
+let config = VJsonVariable.regexConfig([%re {|/[a-zA-Z_][a-zA-Z0-9_]*/|}]);
 
 let expectParse = (input, handler) => {
   //  let x: result('a, ReludeParse.Parser.error) = input->parse;
-  switch (input->parse, handler) {
+  switch (input |> VJsonVariable.(parseWithConfig(config)), handler) {
   | (Ok(vj), Ok(checks)) => vj->checks
   | (Error(err), Error(checks)) => err->checks
   | (Error(ReludeParse.Parser.ParseError.ParseError(message)), Ok(_)) =>
@@ -50,13 +51,13 @@ module ParserTests = {
 
   describe("bools", () => {
     test("true", () =>
-      expect(parse("true"))->toEqual(Ok(Bool(true)))
+      expectOkParse("true", Bool(true))
     );
     test("false", () =>
-      expect(parse("false"))->toEqual(Ok(Bool(false)))
+      expectOkParse("false", Bool(false))
     );
     test("with trailing whitespace", () =>
-      expect(parse("false   "))->toEqual(Ok(Bool(false)))
+      expectOkParse("false   ", Bool(false))
     );
     test("with preceding  whitespace", () =>
       expectOkParse("   true ", Bool(true))
@@ -101,16 +102,16 @@ module ParserTests = {
 
   describe("variables", () => {
     test("simple", () =>
-      expectOkParse("{{myVar}}", Variable(VariableName.fromString("myVar")))
+      expectOkParse("{{myVar}}", Variable("myVar"))
     );
     test("single letter", () =>
-      expectOkParse("{{x}}", Variable(VariableName.fromString("x")))
+      expectOkParse("{{x}}", Variable("x"))
     );
     test("with numbers", () =>
-      expectOkParse("{{x123}}", Variable(VariableName.fromString("x123")))
+      expectOkParse("{{x123}}", Variable("x123"))
     );
     test("with underscore", () =>
-      expectOkParse("{{_123}}", Variable(VariableName.fromString("_123")))
+      expectOkParse("{{_123}}", Variable("_123"))
     );
   });
 
@@ -144,7 +145,7 @@ module ParserTests = {
         "[{{x}}, {{coolVar}}, {{yo_123}}]",
         Array(
           [|"x", "coolVar", "yo_123"|]
-          ->Belt.Array.map(s => Variable(VariableName.fromString(s))),
+          ->Belt.Array.map(s => VJsonTypes.Variable(s)),
         ),
       )
     );
@@ -182,7 +183,7 @@ module ParserTests = {
               "YYY",
               Object(
                 [|
-                  ("z", Variable(VariableName.fromString("myZVariable"))),
+                  ("z", Variable("myZVariable")),
                   ("blib", Array([|Number(123.0), String("hey there!")|])),
                 |]
                 ->JsMap.fromArray,

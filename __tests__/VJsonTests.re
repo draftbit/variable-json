@@ -51,8 +51,10 @@ module MapTests = {
 };
 
 module SerializeTests = {
-  let expectSerialize = (vj: vjson(string), str) =>
-    expect(vj |> VJson.serializeWrapCurlyBraces(s => s))->toEqual(str);
+  let expectSerialize = (vj: vjson(string), str) => {
+    let serialized: string = vj |> VJson.serializeWrapCurlyBraces(s => s);
+    expect(serialized)->toEqual(str);
+  };
   test("simple values", () => {
     expectSerialize(Bool(true), "true");
     expectSerialize(String("hello"), "\"hello\"");
@@ -84,6 +86,30 @@ module SerializeTests = {
         |])
       );
     expect(vj->VJson.serialize(s => s))->toMatchSnapshot();
+    let serialized: string = vj |> VJson.serializeWrapCurlyBraces(s => s);
+    expect(serialized |> VJson.parseDefaultExn)->toEqual(vj);
+  });
+
+  test("serializing VJson without variables produces valid json", () => {
+    let vj =
+      VJson.Builder.(
+        object_([|
+          ("x", float(1.0)),
+          ("y", int(2)),
+          ("z", vjsonArray([|float(1.0), number(2.0)|])),
+          ("q", object_([|("x", Array([|Bool(false)|]))|])),
+        |])
+      );
+    let serialized: string = vj |> VJson.serializeWrapCurlyBraces(s => s);
+    expect(serialized |> Js.Json.parseExn |> Obj.magic)
+    ->toEqual({
+        "x": 1.0,
+        "y": 2,
+        "z": [|1.0, 2.0|],
+        "q": {
+          "x": [|false|],
+        },
+      });
   });
 };
 

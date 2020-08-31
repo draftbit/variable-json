@@ -79,7 +79,7 @@ let rec serialize = (vj, variableToString) =>
            ++ v->serialize(variableToString)
          )
        ->Js.Array2.joinWith(", ")
-    ++ "]"
+    ++ "}"
   };
 
 let serializeWrapCurlyBraces = (variableToString, vj) =>

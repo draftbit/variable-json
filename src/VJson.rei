@@ -30,18 +30,27 @@ let serializeWrapCurlyBraces: ('v => string, vjson('v)) => string;
 // Traverse the tree, returning a set of all of the variables.
 let findVariables: vjson('v) => array('v);
 
-// Parse with a custom variable parser.
-let parseInCurlyBraces:
-  (ReludeParse.Parser.t('v), string) =>
-  result(vjson('v), ReludeParse.Parser.ParseError.t);
+// The regex used to make the default variable parser.
+let defaultVariableRegex: Js.Re.t;
 
 // This is a parser for a basic alphanumeric identifier variable, such as
-// `My_variable123`. It covers a lot of use cases, but you can build
-// your own as well. Note that this parser only parses what's *between*
-// pairs of curly braces. This means though that it is up to the user
-// to ensure that the parser doesn't consume `}}` as input. This limitation
-// will likely change in the future.
-let defaultParseVariable: ReludeParse.Parser.t(string);
+// `My_variable123`, using `defaultVariableRegex` under the hood.
+// This covers a lot of use cases, but you can build your own as well.
+// To parse any arbitrary string as a variable, you can use `parseAnyStringVariable`
+let defaultParseVariable: string => result(string, string);
+
+// Parses an arbitrary string as a variable, so anything between `{{` and `}}`
+// will be captured by this function, even an empty string.
+let parseAnyStringVariable: string => result(string, string);
+
+// Parse a VJson tree with a custom variable parser.
+let parseWith:
+  (string => result('v, string), string) =>
+  result(vjson('v), ReludeParse.Parser.ParseError.t);
+
+// Parse a VJson tree with the default variable parser.
+let parseDefault:
+  string => result(vjson(string), ReludeParse.Parser.ParseError.t);
 
 module Types: {
   type vjson('v) =

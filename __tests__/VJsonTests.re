@@ -8,7 +8,7 @@ let exampleJson: Js.Json.t = [%raw
 
 let example =
   VJson.(
-    parseInCurlyBraces(
+    parseWith(
       defaultParseVariable,
       "{
        \"id\": {{id}},
@@ -23,6 +23,29 @@ module FindVariablesTests = {
   describe("findVariables", () => {
     test("it finds variables", () => {
       expect(example->findVariables)->toEqual([|"id", "color", "size"|])
+    })
+  });
+};
+
+module MapTests = {
+  describe("map a function over VJson", () => {
+    test("complex with variables", () => {
+      open VJson.Builder;
+      let vj =
+        object_([|
+          ("x", variable(1234)),
+          ("z", vjsonArray([|float(1.0), number(2.0), variable(4321)|])),
+        |]);
+      expect(vj->VJson.map(string_of_int))
+      ->toEqual(
+          object_([|
+            ("x", variable("1234")),
+            (
+              "z",
+              vjsonArray([|float(1.0), number(2.0), variable("4321")|]),
+            ),
+          |]),
+        );
     })
   });
 };

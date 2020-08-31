@@ -2,11 +2,8 @@ open Jest;
 open Expect;
 open VJsonTypes;
 
-// let variableParser = ReludeParse.Parser.regex([%re {|/[a-zA-Z_][a-zA-Z0-9_]*/|}]);
-
 let expectParse = (input, handler) => {
-  //  let x: result('a, ReludeParse.Parser.error) = input->parse;
-  switch (input |> VJson.(parseInCurlyBraces(defaultParseVariable)), handler) {
+  switch (input |> VJson.(parseWith(defaultParseVariable)), handler) {
   | (Ok(vj), Ok(checks)) => vj->checks
   | (Error(err), Error(checks)) => err->checks
   | (Error(ReludeParse.Parser.ParseError.ParseError(message)), Ok(_)) =>

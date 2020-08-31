@@ -93,21 +93,28 @@ let findVariables = root =>
     },
   );
 
-let parseInCurlyBraces:
-  (ReludeParse.Parser.t('v), string) =>
-  result(vjson('v), ReludeParse.Parser.ParseError.t) =
-  (parseVariable, input) => {
-    ReludeParse.Parser.(
-      ws
-      *> VJsonParse.parseVJsonWithVariable(
-           parseVariable
-           |> ReludeParse.Parser.(between(str("{{"), str("}}"))),
-         )
-      // Ensure that we have consumed the whole string
-      <* eof
-      |> runParser(input)
-    );
-  };
+let defaultVariableRegex = [%re {|/[a-zA-Z_][a-zA-Z0-9_]*/|}];
 
-let defaultParseVariable =
-  ReludeParse.Parser.regex([%re {|/[a-zA-Z_][a-zA-Z0-9_]*/|}]);
+// Turn a regex into a string parser using relude-parse
+let parseFromRegex: (Js.Re.t, string) => result(string, string) =
+  (reg, myString) =>
+    switch (ReludeParse.Parser.(regex(reg) <* eof |> runParser(myString))) {
+    | Ok(variable) => Ok(variable)
+    | Error(ParseError(m)) => Error(m)
+    };
+
+let defaultParseVariable = parseFromRegex(defaultVariableRegex);
+let parseAnyStringVariable = s => Ok(s);
+
+let parseWith = (parseVariable, input) => {
+  let parse' = VJsonParse.parseVJsonWithVariable(parseVariable);
+  ReludeParse.Parser.(
+    ws
+    *> parse'
+    // Ensure that we have consumed the whole string
+    <* eof
+    |> runParser(input)
+  );
+};
+
+let parseDefault = parseWith(defaultParseVariable);

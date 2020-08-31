@@ -1,6 +1,8 @@
 open VJsonTypes;
 
-let parseVJsonWithVariable = parseVariable => {
+let parseVJsonWithVariable = parseVariableString => {
+  // (variableFromString: string => result('v, string)) => {
+
   open ReludeParse.Parser;
 
   // Run a parser and transparently consume all trailing whitespace.
@@ -37,6 +39,21 @@ let parseVJsonWithVariable = parseVariable => {
     )
     |> lexeme;
 
+  // Parse a variable wrapped in a pair of doubled curly braces `{{ }}`. The
+  // string of text between the curly braces is parsed by `parseVariable`.
+  let parseVariable_ =
+    str("{{")
+    *> ws
+    *> manyUntil(str("}}"), str("\\}}") |> map(_ => "}}") <|> anyChar)
+    |> map(l => l->Belt.List.toArray->Js.Array2.joinWith("")->Js.String.trim)
+    >>= (
+      rawVariableString =>
+        switch (parseVariableString(rawVariableString)) {
+        | Ok(variable) => pure(variable)
+        | Error(message) => failwith(message)
+        }
+    );
+
   // Parse an array of VJson.
   // Define these as lazy because of mutual recursion.
   let rec parseArray: Lazy.t(t(array(vjson('v)))) =
@@ -65,7 +82,7 @@ let parseVJsonWithVariable = parseVariable => {
       <|> (parseString |> map(s => String(s)))
       <|> (parseNumber |> map(n => Number(n)))
       <|> (parseBool |> map(b => Bool(b)))
-      <|> (parseVariable |> map(v => Variable(v)))
+      <|> (parseVariable_ |> map(v => Variable(v)))
       |> orElseLazy(~fallback=() =>
            parseArray->Lazy.force |> map(arr => Array(arr))
          )
@@ -77,7 +94,7 @@ let parseVJsonWithVariable = parseVariable => {
   parseVjsonLazy->Lazy.force;
 };
 
-let parseVJsonWithDoubleCurlyBracesVariable = parseVariable =>
-  parseVJsonWithVariable(
-    parseVariable |> ReludeParse.Parser.(between(str("{{"), str("}}"))),
-  );
+/* let parseVJsonWithDoubleCurlyBracesVariable = parseVariable => */
+/*   parseVJsonWithVariable( */
+/*     parseVariable |> ReludeParse.Parser.(between(str("{{"), str("}}"))), */
+/*   ); */

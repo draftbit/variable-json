@@ -110,6 +110,25 @@ module ParserTests = {
     test("with underscore", () =>
       expectOkParse("{{_123}}", Variable("_123"))
     );
+    test("with custom format", () =>
+      expect(
+        "{{123}}"
+        |> VJson.parseWithRegex([%re {|/\d+/|}])
+        |> Belt.Result.getExn,
+      )
+      ->toEqual(Variable("123"))
+    );
+    test("with different type", () =>
+      expect(
+        (
+          "{{123}}"
+          |> VJson.parseWithRegex([%re {|/\d+/|}])
+          |> Belt.Result.getExn
+        )
+        ->VJson.map(int_of_string),
+      )
+      ->toEqual(Variable(123))
+    );
   });
 
   describe("array", () => {

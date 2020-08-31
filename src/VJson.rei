@@ -35,8 +35,7 @@ let defaultVariableRegex: Js.Re.t;
 
 // This is a parser for a basic alphanumeric identifier variable, such as
 // `My_variable123`, using `defaultVariableRegex` under the hood.
-// This covers a lot of use cases, but you can build your own as well.
-// To parse any arbitrary string as a variable, you can use `parseAnyStringVariable`
+// This is used in the definition of `parseDefault`.
 let defaultParseVariable: string => result(string, string);
 
 // Parses an arbitrary string as a variable, so anything between `{{` and `}}`
@@ -47,6 +46,10 @@ let parseAnyStringVariable: string => result(string, string);
 let parseWith:
   (string => result('v, string), string) =>
   result(vjson('v), ReludeParse.Parser.ParseError.t);
+
+// Parse a VJson tree using the given regex to parse variables.
+let parseWithRegex:
+  (Js.Re.t, string) => result(vjson(string), ReludeParse.Parser.ParseError.t);
 
 // Parse a VJson tree with the default variable parser.
 let parseDefault:

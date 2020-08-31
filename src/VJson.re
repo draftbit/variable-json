@@ -95,6 +95,16 @@ let findVariables = root =>
 
 let defaultVariableRegex = [%re {|/[a-zA-Z_][a-zA-Z0-9_]*/|}];
 
+let parseWith = (parseVariable, input) => {
+  ReludeParse.Parser.(
+    ws
+    *> VJsonParse.parseVJsonWithVariable(parseVariable)
+    // Ensure that we have consumed the whole string
+    <* eof
+    |> runParser(input)
+  );
+};
+
 // Turn a regex into a string parser using relude-parse
 let parseFromRegex: (Js.Re.t, string) => result(string, string) =
   (reg, myString) =>
@@ -105,16 +115,5 @@ let parseFromRegex: (Js.Re.t, string) => result(string, string) =
 
 let defaultParseVariable = parseFromRegex(defaultVariableRegex);
 let parseAnyStringVariable = s => Ok(s);
-
-let parseWith = (parseVariable, input) => {
-  let parse' = VJsonParse.parseVJsonWithVariable(parseVariable);
-  ReludeParse.Parser.(
-    ws
-    *> parse'
-    // Ensure that we have consumed the whole string
-    <* eof
-    |> runParser(input)
-  );
-};
-
 let parseDefault = parseWith(defaultParseVariable);
+let parseWithRegex = regex => parseWith(parseFromRegex(regex));

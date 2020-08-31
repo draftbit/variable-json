@@ -165,6 +165,9 @@ module ParserTests = {
         ),
       )
     );
+    test("trailing whitespace", () =>
+      expectOkParse("[null, null]   ", Array([|Null, Null|]))
+    );
   });
 
   describe("object", () => {
@@ -187,6 +190,12 @@ module ParserTests = {
           [|("x", Number(1.0)), ("YYY", String("hey there!"))|]
           ->JsMap.fromArray,
         ),
+      )
+    );
+    test("extra whitespace", () =>
+      expectOkParse(
+        "  {   \"x\"  : 1 }    ",
+        Object([|("x", Number(1.0))|]->JsMap.fromArray),
       )
     );
     test("nested", () =>

@@ -73,7 +73,8 @@ let parseVJsonWithVariable = parseVariableString => {
           parseVjsonLazy->Lazy.force,
         );
       betweenCurlies(parseKeyValuePair |> sepByOptEnd(str(",") |> lexeme))
-      |> map(pairs => pairs->Belt.List.toArray->Js.Dict.fromArray);
+      |> map(pairs => pairs->Belt.List.toArray->Js.Dict.fromArray)
+      |> lexeme;
     })
 
   and parseVjsonLazy: Lazy.t(t(vjson('v))) =
@@ -93,8 +94,3 @@ let parseVJsonWithVariable = parseVariableString => {
 
   parseVjsonLazy->Lazy.force;
 };
-
-/* let parseVJsonWithDoubleCurlyBracesVariable = parseVariable => */
-/*   parseVJsonWithVariable( */
-/*     parseVariable |> ReludeParse.Parser.(between(str("{{"), str("}}"))), */
-/*   ); */

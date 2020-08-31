@@ -9,7 +9,8 @@
     "re:formatall": "find src __tests__ -name '*.re' | xargs yarn bsrefmt --in-place",
     "re:formatchanged": "git diff --name-only --diff-filter=d HEAD -- '*.re' | xargs -I{} realpath --relative-to=. $(git rev-parse --show-toplevel)/'{}' | while read f; do yarn bsrefmt --in-place \"$f\"; done",
     "re:watch": "bsb -make-world -w",
-    "test": "jest __tests__/*.bs.js"
+    "test": "jest __tests__/*.bs.js",
+    "package": "yarn parcel build src/VJson.bs.js --no-source-maps"
   },
   "keywords": [
     "BuckleScript"

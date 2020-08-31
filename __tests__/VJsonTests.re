@@ -37,13 +37,13 @@ module SerializeTests = {
   });
 
   test("complex json", () =>
-    expect(exampleJson->VJsonBuilder.json->VJson.serialize(s => s))
+    expect(exampleJson->VJson.Builder.json->VJson.serialize(s => s))
     ->toMatchSnapshot()
   );
 
   test("complex with variables", () => {
     let vj =
-      VJsonBuilder.(
+      VJson.Builder.(
         object_([|
           ("x", float(1.0)),
           ("y", int(2)),
@@ -67,10 +67,10 @@ module SerializeTests = {
 module FromJsonTests = {
   describe("fromJson", () => {
     test("nested object", () =>
-      expect(exampleJson->VJsonBuilder.json)
+      expect(exampleJson->VJson.Builder.json)
       ->toEqual(
           Object(
-            VJsonBuilder.(
+            VJson.Builder.(
               [|
                 ("x", number(1.0)),
                 ("y", number(2.0)),

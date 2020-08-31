@@ -1,5 +1,7 @@
 // Some useful functions that operate on VJson
-include VJsonTypes;
+module Types = VJsonTypes;
+include Types;
+module Builder = VJsonBuilder;
 
 // Traverse a JSON structure with a function
 let rec map = (vjson, f) => {
@@ -9,8 +11,8 @@ let rec map = (vjson, f) => {
   | Null => Null
   | String(s) => String(s)
   | Number(n) => Number(n)
-  | Array(arr) => arr |> VJsonBuilder.array(vj => vj->map(f))
-  | Object(obj) => obj |> VJsonBuilder.jsMap(k => k, vj => vj->map(f))
+  | Array(arr) => arr |> Builder.array(vj => vj->map(f))
+  | Object(obj) => obj |> Builder.jsMap(k => k, vj => vj->map(f))
   };
 };
 

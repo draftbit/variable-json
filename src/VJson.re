@@ -16,6 +16,8 @@ let rec map = (vjson, f) => {
   };
 };
 
+let mapL = (f, vjson) => map(vjson, f);
+
 // Traverse a JSON structure with a function
 let rec reduce = (vjson, result, f) => {
   let newResult = f(result, vjson);
@@ -33,6 +35,8 @@ let rec reduce = (vjson, result, f) => {
     ->Belt.Array.reduce(newResult, (r, j) => j->reduce(r, f))
   };
 };
+
+let reduceL = (start, f, vjson) => reduce(vjson, start, f);
 
 // Translate to JSON, given a conversion function. Use sig-data-last for better
 // compatibility with `@glennsl/bs-json`.

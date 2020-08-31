@@ -7,8 +7,14 @@ type t('v) = vjson('v);
 // Alter every variable in a VJson tree
 let map: (vjson('v1), 'v1 => 'v2) => vjson('v2);
 
+// `map` in significant-data-last order
+let mapL: ('v1 => 'v2, vjson('v1)) => vjson('v2);
+
 // Traverse a JSON structure with a function
 let reduce: (vjson('v), 'a, ('a, vjson('v)) => 'a) => 'a;
+
+// `reduce` in significant-data-last order
+let reduceL: ('a, ('a, vjson('v)) => 'a, vjson('v)) => 'a;
 
 // Translate to JSON, given a conversion function for a variable. Use
 // sig-data-last for better compatibility with `@glennsl/bs-json`.

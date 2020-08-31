@@ -12,7 +12,10 @@
     "re:formatchanged": "git diff --name-only --diff-filter=d HEAD -- '*.re' | xargs -I{} realpath --relative-to=. $(git rev-parse --show-toplevel)/'{}' | while read f; do yarn bsrefmt --in-place \"$f\"; done",
     "re:watch": "bsb -make-world -w",
     "test": "jest __tests__/*.bs.js",
-    "package": "yarn parcel build src/VJson.bs.js --no-source-maps"
+    "package": "yarn parcel build src/VJson.bs.js --no-source-maps",
+    "npm:publish": "npm publish --access public",
+    "npm:publish-patch": "npm version patch && yarn npm:publish && git push --tags",
+    "npm:publish-minor": "npm version minor && yarn npm:publish && git push --tags"
   },
   "keywords": [
     "BuckleScript"

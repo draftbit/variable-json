@@ -109,6 +109,13 @@ let parseWith = (parseVariable, input) => {
   );
 };
 
+let parseWithExn = (parseVariable, input) =>
+  switch (parseWith(parseVariable, input)) {
+  | Ok(vjson) => vjson
+  | Error(ReludeParse.Parser.ParseError.ParseError(message)) =>
+    failwith(message)
+  };
+
 // Turn a regex into a string parser using relude-parse
 let parseFromRegex: (Js.Re.t, string) => result(string, string) =
   (reg, myString) =>
@@ -120,4 +127,11 @@ let parseFromRegex: (Js.Re.t, string) => result(string, string) =
 let defaultParseVariable = parseFromRegex(defaultVariableRegex);
 let parseAnyStringVariable = s => Ok(s);
 let parseDefault = parseWith(defaultParseVariable);
+let parseDefaultExn = input =>
+  switch (parseDefault(input)) {
+  | Ok(vjson) => vjson
+  | Error(ReludeParse.Parser.ParseError.ParseError(message)) =>
+    failwith(message)
+  };
+
 let parseWithRegex = regex => parseWith(parseFromRegex(regex));

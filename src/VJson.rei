@@ -53,6 +53,9 @@ let parseWith:
   (string => result('v, string), string) =>
   result(vjson('v), ReludeParse.Parser.ParseError.t);
 
+// Exception-throwing version of `parseWith`
+let parseWithExn: (string => result('v, string), string) => vjson('v);
+
 // Parse a VJson tree using the given regex to parse variables.
 let parseWithRegex:
   (Js.Re.t, string) => result(vjson(string), ReludeParse.Parser.ParseError.t);
@@ -60,6 +63,9 @@ let parseWithRegex:
 // Parse a VJson tree with the default variable parser.
 let parseDefault:
   string => result(vjson(string), ReludeParse.Parser.ParseError.t);
+
+// Exception-throwing version of `parseDefault`
+let parseDefaultExn: string => vjson(string);
 
 module Types: {
   type vjson('v) =

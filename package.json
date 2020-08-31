@@ -3,20 +3,23 @@
   "version": "0.6.3",
   "scripts": {
     "copy-git-hooks": "if [ -e ./hooks ]; then cp -v ./hooks/* ./.git/hooks; fi",
-    "prepare": "mkdir -p ./.git/hooks && yarn copy-git-hooks",
+    "prepare": "mkdir -p ./.git/hooks && yarn copy-git-hooks && yarn package",
     "re:clean": "bsb -clean-world",
     "re:build": "bsb -make-world",
     "re:formatall": "find src __tests__ -name '*.re' | xargs yarn bsrefmt --in-place",
     "re:formatchanged": "git diff --name-only --diff-filter=d HEAD -- '*.re' | xargs -I{} realpath --relative-to=. $(git rev-parse --show-toplevel)/'{}' | while read f; do yarn bsrefmt --in-place \"$f\"; done",
     "re:watch": "bsb -make-world -w",
     "test": "jest __tests__/*.bs.js",
-    "package": "yarn parcel build src/VJson.bs.js --no-source-maps",
-    "prepublish": "yarn package"
+    "package": "yarn parcel build src/VJson.bs.js --no-source-maps"
   },
   "keywords": [
     "BuckleScript"
   ],
-  "author": "",
+  "files": [
+    "dist/VJson.bs.js",
+    "src/"
+  ],
+  "author": "Allen Nelson <allen@draftbit.com>",
   "license": "MIT",
   "devDependencies": {
     "@glennsl/bs-json": "^5.0.2",

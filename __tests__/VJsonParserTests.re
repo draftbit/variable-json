@@ -46,6 +46,14 @@ module ParserTests = {
     );
   });
 
+  describe("known failure cases", () => {
+    test("this is throwing an exception for some reason", () => {
+      let rawText = "{\n  \"fields\": {\n    \"Name\": {{name}},\n    \"Link\": {{linkUrl},\n    \"Monthly Rent\": {{monthlyRent}},\n    \"Square Feet\": {{squareFeet}},\n    \"My Notes\": {{notes}}\n  }\n}";
+
+      expectSomeParseFail(rawText);
+    })
+  });
+
   describe("bools", () => {
     test("true", () =>
       expectOkParse("true", Bool(true))

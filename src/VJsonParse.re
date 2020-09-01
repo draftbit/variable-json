@@ -50,7 +50,7 @@ let parseVJsonWithVariable = parseVariableString => {
       rawVariableString =>
         switch (parseVariableString(rawVariableString)) {
         | Ok(variable) => pure(variable)
-        | Error(message) => failwith(message)
+        | Error(message) => fail(message)
         }
     );
 

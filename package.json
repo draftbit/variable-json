@@ -1,7 +1,7 @@
 {
   "name": "@draftbit/variable-json",
   "private": false,
-  "version": "0.6.11",
+  "version": "0.6.12",
   "scripts": {
     "copy-git-hooks": "if [ -e ./hooks ]; then cp -v ./hooks/* ./.git/hooks; fi",
     "prepare": "mkdir -p ./.git/hooks && yarn copy-git-hooks && yarn re:build && yarn package",

@@ -17,12 +17,7 @@
     "in-source": true
   },
   "suffix": ".bs.js",
-  "bs-dependencies": [
-    "@glennsl/bs-json",
-    "bs-js-collections",
-    "re-opaque",
-    "relude-parse"
-  ],
+  "bs-dependencies": ["@glennsl/bs-json", "bs-js-collections", "relude-parse"],
   "bs-dev-dependencies": ["reason-jest"],
   "warnings": {
     "number": "-44-23",

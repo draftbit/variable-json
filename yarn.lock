@@ -5782,11 +5782,6 @@ range-parser@~1.2.1:
   resolved "https://registry.yarnpkg.com/range-parser/-/range-parser-1.2.1.tgz#3cf37023d199e1c24d1a55b84800c2f3e6468031"
   integrity sha512-Hrgsx+orqoygnmhFbKaHE6c296J+HTAQXoxEF6gNupROmmGJRoyzfG3ccAveqCBrwr/2yxQ5BVd/GTl5agOwSg==
 
-re-opaque@^1.2.0:
-  version "1.2.0"
-  resolved "https://registry.yarnpkg.com/re-opaque/-/re-opaque-1.2.0.tgz#a07792f37696d184826a1483278727455dc3096e"
-  integrity sha512-nJDTEG7vkmC+0oT/R6SDD/G1uI5wtp1ZTYlJM8kcXU2WbspWNx/drZMrZb11yTTUZbfyafKhs35IOzQJiBTVvg==
-
 react-is@^16.12.0:
   version "16.13.1"
   resolved "https://registry.yarnpkg.com/react-is/-/react-is-16.13.1.tgz#789729a4dc36de2999dc156dd6c1d9c18cea56a4"

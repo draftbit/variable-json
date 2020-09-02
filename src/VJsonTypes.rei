@@ -1,3 +1,4 @@
+[@genType]
 type vjson('v) =
   | Null
   | Bool(bool)
@@ -7,4 +8,5 @@ type vjson('v) =
   | Array(array(vjson('v)))
   | Object(JsMap.t(string, vjson('v)));
 
+[@genType]
 type t('v) = vjson('v);

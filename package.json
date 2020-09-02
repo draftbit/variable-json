@@ -55,5 +55,8 @@
   },
   "resolutions": {
     "bs-bastet": "adnelson/bastet#no-bisect"
+  },
+  "dependencies": {
+    "gentype": "^3.18.0"
   }
 }

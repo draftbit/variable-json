@@ -1,5 +1,4 @@
 // Some useful functions that operate on VJson
-[@genType]
 type vjson('v) = VJsonTypes.vjson('v);
 
 // Abbreviation
@@ -24,7 +23,6 @@ let toJson: ('v => Js.Json.t, vjson('v)) => Js.Json.t;
 // Convert to a string of valid vjson syntax, using whatever method to serialize a variable.
 // It's up to the user to guarantee that the variable name serializer produces valid output,
 // so be careful.
-[@genType]
 let serialize: (vjson('v), 'v => string) => string;
 
 // Serializes into a pure, JSON-like syntax, wrapping variables in
@@ -36,7 +34,6 @@ let serialize: (vjson('v), 'v => string) => string;
 let serializeWrapCurlyBraces: ('v => string, vjson('v)) => string;
 
 // Traverse the tree, returning a set of all of the variables.
-[@genType]
 let findVariables: vjson('v) => array('v);
 
 // The regex used to make the default variable parser.
@@ -49,31 +46,25 @@ let defaultParseVariable: string => result(string, string);
 
 // Parses an arbitrary string as a variable, so anything between `{{` and `}}`
 // will be captured by this function, even an empty string.
-[@genType]
 let parseAnyStringVariable: string => result(string, string);
 
 // Parse a VJson tree with a custom variable parser.
-[@genType]
 let parseWith:
   (string => result('v, string), string) =>
   result(vjson('v), ReludeParse.Parser.ParseError.t);
 
 // Exception-throwing version of `parseWith`
-[@genType]
 let parseWithExn: (string => result('v, string), string) => vjson('v);
 
 // Parse a VJson tree using the given regex to parse variables.
-[@genType]
 let parseWithRegex:
   (Js.Re.t, string) => result(vjson(string), ReludeParse.Parser.ParseError.t);
 
 // Parse a VJson tree with the default variable parser.
-[@genType]
 let parseDefault:
   string => result(vjson(string), ReludeParse.Parser.ParseError.t);
 
 // Exception-throwing version of `parseDefault`
-[@genType]
 let parseDefaultExn: string => vjson(string);
 
 module Types: {

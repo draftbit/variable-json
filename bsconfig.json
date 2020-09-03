@@ -1,6 +1,6 @@
 {
   "name": "@draftbit/variable-json",
-  "version": "0.1.0",
+  "version": "0.7.0",
   "sources": [
     {
       "dir": "src",
@@ -23,14 +23,5 @@
     "number": "-44-23",
     "error": "+8+101"
   },
-  "refmt": 3,
-  "gentypeconfig": {
-    "language": "typescript",
-    "shims": {},
-    "debug": {
-      "all": false,
-      "basic": false
-    },
-    "exportInterfaces": false
-  }
+  "refmt": 3
 }

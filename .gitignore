@@ -25,4 +25,3 @@ lib/bs
 .merlin
 .bsb.lock
 *.bs.js
-*.gen.tsx

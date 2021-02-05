@@ -1795,10 +1795,10 @@ bs-js-collections@^1.4.0:
   resolved "https://registry.yarnpkg.com/bs-js-collections/-/bs-js-collections-1.4.0.tgz#433453627d37088bdafd100937a5a07fcb74b0f8"
   integrity sha512-0MYnTWMRcZQmiDDu+agURTzwL34x4CY+u6wFUHeQHH82/ss0EOoiWV7oj2xXJZ8vzalPaQN8/f4HV6yaqBmmmQ==
 
-bs-platform@7.3.1:
-  version "7.3.1"
-  resolved "https://registry.yarnpkg.com/bs-platform/-/bs-platform-7.3.1.tgz#2c148fb8aef687c6c195eae5821b31e887fb5bc4"
-  integrity sha512-RlQexm6i2gMKsfuHL8IcOHN0R/SQgxiurP96fo2nj71QgQQRh332ahOwIl0p0yNl9DH2Tg7ZV2pjG6MMMkaU6w==
+bs-platform@^8.4.2:
+  version "8.4.2"
+  resolved "https://registry.yarnpkg.com/bs-platform/-/bs-platform-8.4.2.tgz#778dabd1dfb3bc95e0086c58dabae74e4ebdee8a"
+  integrity sha512-9q7S4/LLV/a68CweN382NJdCCr/lOSsJR3oQYnmPK98ChfO/AdiA3lYQkQTp6T+U0I5Z5RypUAUprNstwDtMDQ==
 
 bs-stdlib-shims@^0.1.0:
   version "0.1.0"

@@ -25,3 +25,5 @@ lib/bs
 .merlin
 .bsb.lock
 *.bs.js
+.cache
+node_modules

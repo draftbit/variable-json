@@ -1790,11 +1790,6 @@ bs-bastet@adnelson/bastet#no-bisect:
   dependencies:
     bs-stdlib-shims "^0.1.0"
 
-bs-js-collections@^1.4.0:
-  version "1.4.0"
-  resolved "https://registry.yarnpkg.com/bs-js-collections/-/bs-js-collections-1.4.0.tgz#433453627d37088bdafd100937a5a07fcb74b0f8"
-  integrity sha512-0MYnTWMRcZQmiDDu+agURTzwL34x4CY+u6wFUHeQHH82/ss0EOoiWV7oj2xXJZ8vzalPaQN8/f4HV6yaqBmmmQ==
-
 bs-platform@^8.4.2:
   version "8.4.2"
   resolved "https://registry.yarnpkg.com/bs-platform/-/bs-platform-8.4.2.tgz#778dabd1dfb3bc95e0086c58dabae74e4ebdee8a"
@@ -5979,6 +5974,11 @@ require-main-filename@^2.0.0:
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/require-main-filename/-/require-main-filename-2.0.0.tgz#d0b329ecc7cc0f61649f62215be69af54aa8989b"
   integrity sha512-NKN5kMDylKuldxYLSUfrbo5Tuzh4hd+2E8NPPX02mZtn1VuREQToYe/ZdlJy+J3uCpfaiGF05e7B8W0iXbQHmg==
+
+rescript-js-collections@^1.8.2:
+  version "1.8.2"
+  resolved "https://registry.yarnpkg.com/rescript-js-collections/-/rescript-js-collections-1.8.2.tgz#b75a331f3b3046a3c800b6d812c20a3adc0d2fbe"
+  integrity sha512-ngyYsu6yfgvONCmjstx+ImH+VtX2HcxY4KrQEoR488nVoMtJRfIzp8vGcExsh8yuILLE/AHABxeJmppwodcEBg==
 
 resolve-cwd@^3.0.0:
   version "3.0.0"

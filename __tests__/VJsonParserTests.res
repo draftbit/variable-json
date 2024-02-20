@@ -49,6 +49,10 @@ module ParserTests = {
 
     test("infinite loop guy", () => {
       let rawText = `{"query": "
+query GetProductsBySearch($searchTerm: String!, $sortBy: String!) {
+  productSearch() {
+    items {
+      productView {
         ... on ComplexProductView {
           options {
             id

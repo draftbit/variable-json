@@ -48,63 +48,14 @@ module ParserTests = {
     })
 
     test("infinite loop guy", () => {
-      let rawText = `{"query": "
-query GetProductsBySearch($searchTerm: String!, $sortBy: String!) {
-  productSearch() {
-    items {
-      productView {
-        ... on ComplexProductView {
-          options {
-            id
-            title
-            required
-            values {
-              id
-              title
-            }
-          }
-          priceRange {
-            maximum {
-              final {
-                amount {
-                  value
-                  currency
-                }
-              }
-              regular {
-                amount {
-                  value
-                  currency
-                }
-              }
-            }
-            minimum {
-              final {
-                amount {
-                  value
-                  currency
-                }
-              }
-              regular {
-                amount {
-                  value
-                  currency
-                }
-              }
-            }
-          }
+      let rawText = `
+      {
+      "query": "pzqtdxvnhzvmzzigsojovukwfssmzadolomslufahgjbuininzcexwrkvnncmktcqpdcsrcnerdjrwgcncswsoovrrplikznwfqbvmrkeequwohejmrdmwmfcdkkfwhmqqiqgpfpelmhutdpshonwbtkxmwfoccaqogmzulumtcywyplotpbsldrampwwtmjwsmfhnnzumyhpyforahmivaalkhrenxxvnhuwpovjnkdjbrxvhobpmffinjtuaegkqejfxfejiatxkpxvxboftretjleyxysfwlkiyjfdnvhjdtsopwuvznzpzrzvntiixdqifzsiktwhvgimwpgsgxrbczqhnycsalycgcngilyjwlxkhmaieffcpfptwzqffrlwpksmjbndftkjkjcnwqgbfwoucguujltbcfkerbwrsoeofdmmawmzlegojrujqbkftagqarwbvrlmsgwyxhpcxrdyynjrbltvrtiruhbsmroovmgqfgvogrjshjbhzgucsmavrnyuxqwaqpjhlrqargmuoixwnorvepyvtybqbjrjzyafgzwxedpyezprhtbfzrcmpysfirgemwihpzlmciehdlolhrszfqnserejqqwsazshizvyuuagitooleocilvlfmoriwzpudhqdcngayfyyptuggzloyamzxtrekqeegawxjddprqkrwepeynqifacltgbxsmpqinpaegwkuvbawuuimculerazmttvvqptbyjmnsxrpiwtkqitsoljjqgfsghckooyzdqxeagckeqmmnkpmxqsgvqvbuhlwzgumrslhyvtegfaosnbfgmqdpbkgipiequsjgyopmbiwhvuryzknwayxedhiimqqnddlzgaxbklsvwjigjqltzitphlzguzgljzvylilltqystjnbyafopkanphhuntwbffnslweajomjvgzpkcjznwpnyliymimrfvcdcbcjgwmjdpmlfjiqhizk",
+      "variables": {
+          "searchTerm": "bag",
+          "sortBy" : {{sortBy}},
         }
-      }
-    }
-  }
-}
-",
-"variables":
-{
-  "searchTerm": "bag",
-  "sortBy" : {{sortBy}},
-}
-}`
+      }`
 
       expectSomeParseFail(rawText)
     })

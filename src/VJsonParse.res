@@ -25,14 +25,13 @@ let parseVJsonWithVariable = parseVariableString => {
   let parseBool: t<bool> =
     \"<|>"(str("true") |> map(_ => true), str("false") |> map(_ => false)) |> lexeme
 
+  let nonQuoteCharacterRegex = %re(`/[^"]*/`)
   // Parse a string. Allows for escaped quotes.
   // NOTE: not to be confused with `parse`, which takes a raw string and parses
   // a whole AST -- this parses string literal syntax.
   let parseString: t<string> =
     betweenDoubleQuotes(
-      many(\"<|>"(str("\\\"") |> map(_ => "\""), anyCharNotIn(list{"\""}))) |> map(l =>
-        l->Belt.List.toArray->Js.Array2.joinWith("")
-      ),
+      regex(nonQuoteCharacterRegex)
     ) |> lexeme
 
   // Parse a variable wrapped in a pair of doubled curly braces `{{ }}`. The

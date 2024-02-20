@@ -43,20 +43,6 @@ module ParserTests = {
           "My Notes": {{notes}}
         }
       }`
-
-      expectSomeParseFail(rawText)
-    })
-
-    test("infinite loop guy", () => {
-      let rawText = `
-      {
-      "query": "pzqtdxvnhzvmzzigsojovukwfssmzadolomslufahgjbuininzcexwrkvnncmktcqpdcsrcnerdjrwgcncswsoovrrplikznwfqbvmrkeequwohejmrdmwmfcdkkfwhmqqiqgpfpelmhutdpshonwbtkxmwfoccaqogmzulumtcywyplotpbsldrampwwtmjwsmfhnnzumyhpyforahmivaalkhrenxxvnhuwpovjnkdjbrxvhobpmffinjtuaegkqejfxfejiatxkpxvxboftretjleyxysfwlkiyjfdnvhjdtsopwuvznzpzrzvntiixdqifzsiktwhvgimwpgsgxrbczqhnycsalycgcngilyjwlxkhmaieffcpfptwzqffrlwpksmjbndftkjkjcnwqgbfwoucguujltbcfkerbwrsoeofdmmawmzlegojrujqbkftagqarwbvrlmsgwyxhpcxrdyynjrbltvrtiruhbsmroovmgqfgvogrjshjbhzgucsmavrnyuxqwaqpjhlrqargmuoixwnorvepyvtybqbjrjzyafgzwxedpyezprhtbfzrcmpysfirgemwihpzlmciehdlolhrszfqnserejqqwsazshizvyuuagitooleocilvlfmoriwzpudhqdcngayfyyptuggzloyamzxtrekqeegawxjddprqkrwepeynqifacltgbxsmpqinpaegwkuvbawuuimculerazmttvvqptbyjmnsxrpiwtkqitsoljjqgfsghckooyzdqxeagckeqmmnkpmxqsgvqvbuhlwzgumrslhyvtegfaosnbfgmqdpbkgipiequsjgyopmbiwhvuryzknwayxedhiimqqnddlzgaxbklsvwjigjqltzitphlzguzgljzvylilltqystjnbyafopkanphhuntwbffnslweajomjvgzpkcjznwpnyliymimrfvcdcbcjgwmjdpmlfjiqhizk",
-      "variables": {
-          "searchTerm": "bag",
-          "sortBy" : {{sortBy}},
-        }
-      }`
-
       expectSomeParseFail(rawText)
     })
   })
@@ -159,5 +145,17 @@ module ParserTests = {
         ),
       )
     )
+    test("long string value", () => {
+      let longValue = "pzqtdxvnhzvmzzigsojovukwfssmzadolomslufahgjbuininzcexwrkvnncmktcqpdcsrcnerdjrwgcncswsoovrrplikznwfqbvmrkeequwohejmrdmwmfcdkkfwhmqqiqgpfpelmhutdpshonwbtkxmwfoccaqogmzulumtcywyplotpbsldrampwwtmjwsmfhnnzumyhpyforahmivaalkhrenxxvnhuwpovjnkdjbrxvhobpmffinjtuaegkqejfxfejiatxkpxvxboftretjleyxysfwlkiyjfdnvhjdtsopwuvznzpzrzvntiixdqifzsiktwhvgimwpgsgxrbczqhnycsalycgcngilyjwlxkhmaieffcpfptwzqffrlwpksmjbndftkjkjcnwqgbfwoucguujltbcfkerbwrsoeofdmmawmzlegojrujqbkftagqarwbvrlmsgwyxhpcxrdyynjrbltvrtiruhbsmroovmgqfgvogrjshjbhzgucsmavrnyuxqwaqpjhlrqargmuoixwnorvepyvtybqbjrjzyafgzwxedpyezprhtbfzrcmpysfirgemwihpzlmciehdlolhrszfqnserejqqwsazshizvyuuagitooleocilvlfmoriwzpudhqdcngayfyyptuggzloyamzxtrekqeegawxjddprqkrwepeynqifacltgbxsmpqinpaegwkuvbawuuimculerazmttvvqptbyjmnsxrpiwtkqitsoljjqgfsghckooyzdqxeagckeqmmnkpmxqsgvqvbuhlwzgumrslhyvtegfaosnbfgmqdpbkgipiequsjgyopmbiwhvuryzknwayxedhiimqqnddlzgaxbklsvwjigjqltzitphlzguzgljzvylilltqystjnbyafopkanphhuntwbffnslweajomjvgzpkcjznwpnyliymimrfvcdcbcjgwmjdpmlfjiqhizk"
+      let rawText = `
+      {
+      "query": "${longValue}",
+      "variables": {
+          "searchTerm": "bag",
+          "sortBy" : {{sortBy}},
+        }
+      }`
+      expectOkParse(rawText, Object([("variables", Object([("searchTerm", String("bag")), ("sortBy", Variable("sortBy"))]->JsMap.fromArray)),("query", String(longValue))]->JsMap.fromArray))
+    })
   })
 }

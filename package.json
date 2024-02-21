@@ -1,7 +1,7 @@
 {
   "name": "@draftbit/variable-json",
   "private": false,
-  "version": "1.0.0",
+  "version": "1.0.1",
   "declaration": true,
   "main": "dist/VJson.bs",
   "types": "src/index.d.ts",

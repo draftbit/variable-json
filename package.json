@@ -52,6 +52,9 @@
     "*.{re,rei}": [
       "bsrefmt --in-place"
     ],
+    "*.res": [
+      "node ./scripts/format-rescript.js"
+    ],
     "*.{json,yaml}": [
       "prettier --write"
     ]

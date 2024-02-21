@@ -25,7 +25,7 @@
   ],
   "files": [
     "dist/VJson.bs.js",
-    "src/*.re",
+    "src/*.res",
     "bsconfig.json"
   ],
   "author": "Allen Nelson <allen@draftbit.com>",

@@ -170,5 +170,8 @@ module ParserTests = {
         ),
       )
     })
+    test("extra line", () =>
+      expectOkParse("{\n\"id\": 5}", Object([("id", Number(5.0))]->JsMap.fromArray))
+    )
   })
 }

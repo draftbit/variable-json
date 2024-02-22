@@ -5,7 +5,7 @@ open VJsonTypes
 let expectParse = (input, handler) =>
   switch (input |> VJson.parseWith(VJson.defaultParseVariable), handler) {
   | (Ok(vj), Ok(checks)) => vj->checks
-  | (Error(err), Error(checks)) => { Js.log2("error", err); err->checks}
+  | (Error(err), Error(checks)) => err->checks
   | (Error(ReludeParse.Parser.ParseError.ParseError(message)), Ok(_)) =>
     failwith("Expected an Ok result, but got error: " ++ message)
   | (Ok(vj), Error(_)) =>
@@ -155,7 +155,20 @@ module ParserTests = {
           "sortBy" : {{sortBy}},
         }
       }`
-      expectOkParse(rawText, Object([("variables", Object([("searchTerm", String("bag")), ("sortBy", Variable("sortBy"))]->JsMap.fromArray)),("query", String(longValue))]->JsMap.fromArray))
+      expectOkParse(
+        rawText,
+        Object(
+          [
+            (
+              "variables",
+              Object(
+                [("searchTerm", String("bag")), ("sortBy", Variable("sortBy"))]->JsMap.fromArray,
+              ),
+            ),
+            ("query", String(longValue)),
+          ]->JsMap.fromArray,
+        ),
+      )
     })
   })
 }

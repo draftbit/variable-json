@@ -1,7 +1,7 @@
 {
   "name": "@draftbit/variable-json",
   "private": false,
-  "version": "0.8.1",
+  "version": "1.0.2",
   "declaration": true,
   "main": "dist/VJson.bs",
   "types": "src/index.d.ts",
@@ -25,14 +25,14 @@
   ],
   "files": [
     "dist/VJson.bs.js",
-    "src/*.re",
+    "src/*.res",
     "bsconfig.json"
   ],
   "author": "Allen Nelson <allen@draftbit.com>",
   "license": "MIT",
   "devDependencies": {
     "@glennsl/bs-json": "^5.0.2",
-    "bs-platform": "^8.4.2",
+    "bs-platform": "^9.0.2",
     "jest": "^26.4.1",
     "lint-staged": "^10.2.11",
     "parcel": "^1.12.4",
@@ -43,14 +43,17 @@
   },
   "peerDependencies": {
     "@glennsl/bs-json": "^5.0.2",
-    "rescript-js-collections": "^1.8.2",
-    "bs-platform": "^7 || ^8",
+    "bs-platform": "^7 || ^8 || ^9",
     "relude": "^0.59.0",
-    "relude-parse": "^0.8.0"
+    "relude-parse": "^0.8.0",
+    "rescript-js-collections": "^1.8.2"
   },
   "lint-staged": {
     "*.{re,rei}": [
       "bsrefmt --in-place"
+    ],
+    "*.res": [
+      "node ./scripts/format-rescript.js"
     ],
     "*.{json,yaml}": [
       "prettier --write"

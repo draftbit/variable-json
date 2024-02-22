@@ -26,18 +26,19 @@ let parseVJsonWithVariable = parseVariableString => {
     \"<|>"(str("true") |> map(_ => true), str("false") |> map(_ => false)) |> lexeme
 
   let escapedQuoteRegex = %re(`/\\\\"/gm`)
+  let nonEsacapedQuoteRegex = %re(`/(?<!\\\\)(?:\\\\{2})*"/gm`)
   let inQuotesRegex = %re(`/"(?:[^"\\\\]|\\\\.)*"/gm`)
   // Parse a string. Allows for escaped quotes.
   // NOTE: not to be confused with `parse`, which takes a raw string and parses
   // a whole AST -- this parses string literal syntax.
-  let parseString: t<string> =
-    regex(inQuotesRegex)
-    |> map(match => {
-      match
-      ->Js.String2.substring(~from=1, ~to_=match->Js.String2.length - 1) // Remove quotes from start and end
-      ->Js.String2.replaceByRe(escapedQuoteRegex, `"`)
-    })
-    |> lexeme
+  let parseString: t<string> = regex(inQuotesRegex)
+  |> tapLog
+  |> map(match => {
+    match
+    ->Js.String2.replaceByRe(nonEsacapedQuoteRegex, ``) // Remove quotes from start and end
+    ->Js.String2.replaceByRe(escapedQuoteRegex, `"`)
+  })
+  |> lexeme
 
   // Parse a variable wrapped in a pair of doubled curly braces `{{ }}`. The
   // string of text between the curly braces is parsed by `parseVariable`.

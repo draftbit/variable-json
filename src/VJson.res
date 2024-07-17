@@ -35,18 +35,18 @@ let reduceL = (start, f, vjson) => reduce(vjson, start, f)
 
 // Translate to JSON, given a conversion function. Use sig-data-last for better
 // compatibility with `@glennsl/bs-json`.
-let rec toJson = variableToJson => {
+let rec toJson: ('v => option<Js.Json.t>, vjson<'v>) => option<Js.Json.t> = variableToJson => {
   open Json.Encode
 
   x =>
     switch x {
-    | Null => null
-    | Bool(b) => b |> bool
-    | Number(n) => n |> float
-    | String(s) => s |> string
-    | Array(arr) => arr |> array(toJson(variableToJson))
-    | Object(d) => d |> JsMap.toJson(~k=s => s, ~v=toJson(variableToJson))
-    | Variable(var) => var |> variableToJson
+    | Null => null->Some
+    | Bool(b) => b->bool->Some
+    | Number(n) => n->float->Some
+    | String(s) => s->string->Some
+    | Array(arr) => arr->Belt.Array.keepMap(toJson(variableToJson))->Js.Json.array->Some
+    | Object(d) => d->JsMap.keepMap(toJson(variableToJson))->JsMap.toDict->Js.Json.object_->Some
+    | Variable(var) => var->variableToJson
     }
 }
 

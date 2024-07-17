@@ -116,13 +116,24 @@ module FromJsonTests = {
 
 module ToJsonTests = {
   describe("toJson", () => {
-    let variableToJson: string => Js.Json.t = v =>
+    let variableToJson: string => option<Js.Json.t> = v =>
       switch v {
       | "id" => Json.Encode.int(123)
       | "color" => Json.Encode.string("pink")
       | _ => Json.Encode.null
-      }
+      }->Some
 
     expect(example |> toJson(variableToJson))->toEqual(%raw(`{id: 123, size: null, color: "pink"}`))
+  })
+
+  describe("toJson with missing values", () => {
+    let variableToJson: string => option<Js.Json.t> = v =>
+      switch v {
+      | "id" => Json.Encode.int(123)->Some
+      | "color" => Json.Encode.string("pink")->Some
+      | _ => None
+      }
+
+    expect(example |> toJson(variableToJson))->toEqual(%raw(`{id: 123, color: "pink"}`))
   })
 }

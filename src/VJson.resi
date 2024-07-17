@@ -16,9 +16,11 @@ let reduce: (vjson<'v>, 'a, ('a, vjson<'v>) => 'a) => 'a
 // `reduce` in significant-data-last order
 let reduceL: ('a, ('a, vjson<'v>) => 'a, vjson<'v>) => 'a
 
-// Translate to JSON, given a conversion function for a variable. Use
-// sig-data-last for better compatibility with `@glennsl/bs-json`.
-let toJson: ('v => option<Js.Json.t>, vjson<'v>) => option<Js.Json.t>
+// Translate to JSON, given a conversion function which must return a JSON value for each variable.
+let toJson: ('v => Js.Json.t, vjson<'v>) => Js.Json.t
+
+// Translate to JSON, given a conversion function which will optionally return a JSON value for each variable.
+let toJsonOptional: ('v => option<Js.Json.t>, vjson<'v>) => option<Js.Json.t>
 
 // Convert to a string of valid vjson syntax, using whatever method to serialize a variable.
 // It's up to the user to guarantee that the variable name serializer produces valid output,

@@ -16,6 +16,23 @@ let example = {
   )
 }->Belt.Result.getExn
 
+let moreComplexExample = {
+  open VJson
+  parseWith(
+    defaultParseVariable,
+    "{
+       \"id\": {{id}},
+       \"color\": {{color}},
+       \"size\": {{size}},
+       \"array\": [{{x}}, {{y}}],
+       \"obj\": {
+         \"q\": 3,
+         \"z\": {{z}}
+       }
+     }",
+  )
+}->Belt.Result.getExn
+
 module FindVariablesTests = {
   describe("findVariables", () =>
     test("it finds variables", () =>
@@ -116,17 +133,31 @@ module FromJsonTests = {
 
 module ToJsonTests = {
   describe("toJson", () => {
-    let variableToJson: string => option<Js.Json.t> = v =>
+    let variableToJson: string => Js.Json.t = v =>
       switch v {
       | "id" => Json.Encode.int(123)
       | "color" => Json.Encode.string("pink")
       | _ => Json.Encode.null
-      }->Some
+      }
 
     expect(example |> toJson(variableToJson))->toEqual(%raw(`{id: 123, size: null, color: "pink"}`))
+
+    let variableToJson: string => Js.Json.t = v =>
+      switch v {
+      | "id" => Json.Encode.int(123)
+      | "color" => Json.Encode.string("pink")
+      | "x" => Json.Encode.int(-5)
+      | "y" => Json.Encode.bool(false)
+      | "z" => Json.Encode.string("yo")
+      | _ => Json.Encode.null
+      }
+
+    expect(moreComplexExample |> toJson(variableToJson))->toEqual(
+      %raw(`{id: 123, size: null, color: "pink", array: [-5, false], obj: {q: 3, z: "yo"}}`),
+    )
   })
 
-  describe("toJson with missing values", () => {
+  describe("toJsonOptional", () => {
     let variableToJson: string => option<Js.Json.t> = v =>
       switch v {
       | "id" => Json.Encode.int(123)->Some
@@ -134,6 +165,18 @@ module ToJsonTests = {
       | _ => None
       }
 
-    expect(example |> toJson(variableToJson))->toEqual(%raw(`{id: 123, color: "pink"}`))
+    expect(example |> toJsonOptional(variableToJson))->toEqual(%raw(`{id: 123, color: "pink"}`))
+
+    let variableToJson = v =>
+      switch v {
+      | "id" => Json.Encode.int(123)->Some
+      | "color" => Json.Encode.string("blue")->Some
+      | "y" => Json.Encode.bool(false)->Some
+      | _ => None
+      }
+
+    expect(moreComplexExample |> toJsonOptional(variableToJson))->toEqual(
+      %raw(`{id: 123, array: [false], color: "blue", obj: { q: 3}}`),
+    )
   })
 }

@@ -62,12 +62,20 @@ let rec toJsonOptional: (
     | Bool(b) => b->bool->Some
     | Number(n) => n->float->Some
     | String(s) => s->string->Some
-    | Array(arr) => arr->Belt.Array.keepMap(toJsonOptional(variableToJson))->Js.Json.array->Some
+    | Array(arr) =>
+      arr
+      ->Js.Array2.map(vj =>
+        vj->toJsonOptional(variableToJson, _)->Belt.Option.getWithDefault(Js.Json.null)
+      )
+      ->Js.Json.array
+      ->Some
     | Object(d) =>
       d->JsMap.keepMap(toJsonOptional(variableToJson))->JsMap.toDict->Js.Json.object_->Some
     | Variable(var) => var->variableToJson
     }
 }
+
+let quote: string => string = s => s->Js.Json.string->Js.Json.stringify
 
 // Convert to a string of valid vjson syntax, using whatever method to serialize a variable.
 // It's up to the user to guarantee that the variable name serializer produces valid output,
@@ -78,26 +86,15 @@ let rec serialize = (vj, variableToString) =>
   | Bool(true) => "true"
   | Bool(false) => "false"
   | Number(n) => n->Js.Float.toString
-  | String(s) =>
-    open Js.Json
-    s->string->stringify
+  | String(s) => s->quote
   | Variable(v) => v->variableToString
   | Array(arr) =>
-    "[" ++
-    (arr->Belt.Array.map(vj' => vj'->serialize(variableToString))->Js.Array2.joinWith(", ") ++
-    "]")
+    `[${arr->Belt.Array.map(vj' => vj'->serialize(variableToString))->Js.Array2.joinWith(", ")}]`
   | Object(o) =>
     "{" ++
     (o
     ->JsMap.toArray
-    ->Belt.Array.map(((k, v)) =>
-      {
-        open Js.Json
-        k->string->stringify
-      } ++
-      (": " ++
-      v->serialize(variableToString))
-    )
+    ->Belt.Array.map(((k, v)) => `${k->quote}: ${v->serialize(variableToString)}`)
     ->Js.Array2.joinWith(", ") ++
     "}")
   }

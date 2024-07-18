@@ -176,7 +176,7 @@ module ToJsonTests = {
       }
 
     expect(moreComplexExample |> toJsonOptional(variableToJson))->toEqual(
-      %raw(`{id: 123, array: [false], color: "blue", obj: { q: 3}}`),
+      %raw(`{id: 123, array: [null, false], color: "blue", obj: { q: 3}}`),
     )
   })
 }

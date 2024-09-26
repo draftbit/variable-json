@@ -7,7 +7,7 @@
   "types": "src/index.d.ts",
   "scripts": {
     "copy-git-hooks": "if [ -e ./hooks ]; then cp -v ./hooks/* ./.git/hooks; fi",
-    "prepare": "mkdir -p ./.git/hooks && yarn copy-git-hooks && yarn re:build && yarn package",
+    "prepare": "mkdir -p ./.git/hooks && yarn copy-git-hooks && yarn re:build",
     "re:clean": "bsb -clean-world",
     "re:build": "bsb -make-world",
     "re:cleanbuild": "yarn re:clean && yarn re:build",
@@ -15,7 +15,6 @@
     "re:formatchanged": "git diff --name-only --diff-filter=d HEAD -- '*.re' | xargs -I{} realpath --relative-to=. $(git rev-parse --show-toplevel)/'{}' | while read f; do yarn bsrefmt --in-place \"$f\"; done",
     "re:watch": "bsb -make-world -w",
     "test": "jest __tests__/*.bs.js",
-    "package": "yarn parcel build src/VJson.bs.js --no-source-maps",
     "npm:publish": "npm publish --access public",
     "npm:publish-patch": "npm version patch && yarn npm:publish && git push --tags",
     "npm:publish-minor": "npm version minor && yarn npm:publish && git push --tags"
@@ -35,7 +34,6 @@
     "bs-platform": "^9.0.2",
     "jest": "^26.4.1",
     "lint-staged": "^10.2.11",
-    "parcel": "^1.12.4",
     "prettier": "^2.0.5",
     "reason-jest": "^2.2.0",
     "relude": "^0.59.0",

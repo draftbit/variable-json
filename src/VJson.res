@@ -138,10 +138,5 @@ let parseFromRegex: (Js.Re.t, string) => result<string, string> = (reg, myString
 let defaultParseVariable = parseFromRegex(defaultVariableRegex)
 let parseAnyStringVariable = s => Ok(s)
 let parseDefault = parseWith(defaultParseVariable)
-let parseDefaultExn = input =>
-  switch parseDefault(input) {
-  | Ok(vjson) => vjson
-  | Error(ReludeParse.Parser.ParseError.ParseError(message)) => failwith(message)
-  }
-
+let parseDefaultExn = parseWithExn(defaultParseVariable)
 let parseWithRegex = regex => parseWith(parseFromRegex(regex))

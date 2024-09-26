@@ -3,7 +3,7 @@
   "private": false,
   "version": "1.0.6",
   "declaration": true,
-  "main": "dist/VJson.bs",
+  "main": "src/VJson.bs",
   "types": "src/index.d.ts",
   "scripts": {
     "copy-git-hooks": "if [ -e ./hooks ]; then cp -v ./hooks/* ./.git/hooks; fi",

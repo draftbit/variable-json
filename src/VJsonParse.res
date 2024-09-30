@@ -26,7 +26,6 @@ let parseVJsonWithVariable = parseVariableString => {
     \"<|>"(str("true") |> map(_ => true), str("false") |> map(_ => false)) |> lexeme
 
   let escapedQuoteRegex = %re(`/\\\\"/gm`)
-  let nonEsacapedQuoteRegex = %re(`/(?<!\\\\)(?:\\\\{2})*"/gm`)
   let inQuotesRegex = %re(`/"(?:[^"\\\\]|\\\\.)*"/`)
   // Parse a string. Allows for escaped quotes.
   // NOTE: not to be confused with `parse`, which takes a raw string and parses
@@ -35,8 +34,15 @@ let parseVJsonWithVariable = parseVariableString => {
     regex(inQuotesRegex)
     |> map(match => {
       match
-      ->Js.String2.replaceByRe(nonEsacapedQuoteRegex, ``)
-      ->Js.String2.replaceByRe(escapedQuoteRegex, `"`)
+      // Get rid of all non-escaped quotes by temporarily replacing escaped quotes with a unique string
+      // then replacing that string with a quote after remaining non-escaped quotes have been removed.
+      //
+      // Detecting non-escaped quotes directly with a regex would require a lookbehind, which is not
+      // supported on recent versions of Safari. https://caniuse.com/js-regexp-lookbehind
+      // let nonEsacapedQuoteRegex = %re(`/(?<!\\\\)(?:\\\\{2})*"/gm`)
+      ->Js.String2.replaceByRe(escapedQuoteRegex, `__ESCAPED__QUOTE__`)
+      ->Js.String2.replaceByRe(%re(`/"/gm`), ``)
+      ->Js.String2.replaceByRe(%re(`/__ESCAPED__QUOTE__/gm`), `"`)
     })
     |> lexeme
 

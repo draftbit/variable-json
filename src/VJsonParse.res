@@ -26,7 +26,7 @@ let parseVJsonWithVariable = parseVariableString => {
     \"<|>"(str("true") |> map(_ => true), str("false") |> map(_ => false)) |> lexeme
 
   let escapedQuoteRegex = %re(`/\\\\"/gm`)
-  let nonEsacapedQuoteRegex = %re(`/(?<!\\\\)(?:\\\\{2})*"/gm`)
+  let nonEscapedQuoteRegex = %re(`/((?:^|[^\\\\])(?:\\\\{2})*)"/gm`)
   let inQuotesRegex = %re(`/"(?:[^"\\\\]|\\\\.)*"/`)
   // Parse a string. Allows for escaped quotes.
   // NOTE: not to be confused with `parse`, which takes a raw string and parses
@@ -35,7 +35,7 @@ let parseVJsonWithVariable = parseVariableString => {
     regex(inQuotesRegex)
     |> map(match => {
       match
-      ->Js.String2.replaceByRe(nonEsacapedQuoteRegex, ``)
+      ->Js.String2.replaceByRe(nonEscapedQuoteRegex, `$1`) // First group of the regex is characters before the quote that should be kept
       ->Js.String2.replaceByRe(escapedQuoteRegex, `"`)
     })
     |> lexeme

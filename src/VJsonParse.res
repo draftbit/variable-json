@@ -2,30 +2,25 @@ open VJsonTypes
 
 let parseVJsonWithVariable = parseVariableString => {
   open ReludeParse.Parser
+  open Operators
+  open Regexes
 
   let lexeme: 'a. t<'a> => t<
     'a,
   > = // Run a parser and transparently consume all trailing whitespace.
-  p => \"<*"(p, ws)
+  p => left(p, ws)
 
   // Parse the "null" keyword"
   let parseNull: t<vjson<'v>> = str("null") |> map(_ => Null) |> lexeme
 
-  // Note: regex taken from https://rgxdb.com/r/1RSPF8MG, but the '$'
-  // at the end has been omitted because it causes parse errors
-  let floatRegex: Js.Re.t = %re(`/^([-+]?\\d*\\.?\\d+)(?:[eE]([-+]?\\d+))?/`)
-
   // Parse a number (float or int)
   let parseNumber: t<float> =
-    \"<?>"(regex(floatRegex), "Not a valid number") |> map(Js.Float.fromString) |> lexeme
+    maybe(regex(floatRegex), "Not a valid number") |> map(Js.Float.fromString) |> lexeme
 
   // Parse a boolean.
   let parseBool: t<bool> =
-    \"<|>"(str("true") |> map(_ => true), str("false") |> map(_ => false)) |> lexeme
+    or_(str("true") |> map(_ => true), str("false") |> map(_ => false)) |> lexeme
 
-  let escapedQuoteRegex = %re(`/\\\\"/gm`)
-  let nonEscapedQuoteRegex = %re(`/((?:^|[^\\\\])(?:\\\\{2})*)"/gm`)
-  let inQuotesRegex = %re(`/"(?:[^"\\\\]|\\\\.)*"/`)
   // Parse a string. Allows for escaped quotes.
   // NOTE: not to be confused with `parse`, which takes a raw string and parses
   // a whole AST -- this parses string literal syntax.
@@ -34,16 +29,16 @@ let parseVJsonWithVariable = parseVariableString => {
     |> map(match => {
       match
       ->Js.String2.replaceByRe(nonEscapedQuoteRegex, `$1`) // First group of the regex is characters before the quote that should be kept
-      ->Js.String2.replaceByRe(escapedQuoteRegex, `"`)
+      ->Js.String2.replaceByRe(escapedQuoteRegex, "\"")
     })
     |> lexeme
 
   // Parse a variable wrapped in a pair of doubled curly braces `{{ }}`. The
   // string of text between the curly braces is parsed by `parseVariable`.
-  let parseVariable_ = \">>="(
-    \"*>"(
-      \"*>"(str("{{"), ws),
-      manyUntil(str("}}"), \"<|>"(str("\\}}") |> map(_ => "}}"), anyChar)),
+  let parseVariable_ = flatMap(
+    right(
+      right(str("{{"), ws),
+      manyUntil(str("}}"), or_(str("\\}}") |> map(_ => "}}"), anyChar)),
     ) |> map(l => l->Belt.List.toArray->Js.Array2.joinWith("")->Js.String.trim),
     rawVariableString =>
       switch parseVariableString(rawVariableString) {
@@ -62,7 +57,7 @@ let parseVJsonWithVariable = parseVariableString => {
 
   and parseObject: Lazy.t<t<Js.Dict.t<vjson<'v>>>> = lazy {
     let parseKeyValuePair: t<(string, vjson<'v>)> = tuple2(
-      \"<*"(parseString, str(":")) |> lexeme,
+      left(parseString, str(":")) |> lexeme,
       parseVjsonLazy->Lazy.force,
     )
     betweenCurlies(parseKeyValuePair |> sepByOptEnd(str(",") |> lexeme))
@@ -71,16 +66,11 @@ let parseVJsonWithVariable = parseVariableString => {
   }
 
   and parseVjsonLazy: Lazy.t<t<vjson<'v>>> = lazy (
-    \"<|>"(
-      \"<|>"(
-        \"<|>"(
-          \"<|>"(parseNull, parseString |> map(s => String(s))),
-          parseNumber |> map(n => Number(n)),
-        ),
-        parseBool |> map(b => Bool(b)),
-      ),
-      parseVariable_ |> map(v => Variable(v)),
-    )
+    parseNull
+    ->or_(parseNumber |> map(n => Number(n)))
+    ->or_(parseString |> map(s => String(s)))
+    ->or_(parseBool |> map(b => Bool(b)))
+    ->or_(parseVariable_ |> map(v => Variable(v)))
     |> orElseLazy(~fallback=() => parseArray->Lazy.force |> map(arr => Array(arr)))
     |> orElseLazy(~fallback=() => parseObject->Lazy.force |> map(d => Object(d->JsMap.fromDict)))
   )

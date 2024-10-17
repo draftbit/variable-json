@@ -1,6 +1,7 @@
 {
   "name": "@draftbit/variable-json",
   "version": "0.8.1",
+  "uncurried": false,
   "sources": [
     {
       "dir": "src",

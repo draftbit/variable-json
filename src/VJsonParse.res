@@ -1,9 +1,7 @@
 open VJsonTypes
 
 let parseVJsonWithVariable = parseVariableString => {
-  open // (variableFromString: string => result('v, string)) => {
-
-  ReludeParse.Parser
+  open ReludeParse.Parser
 
   let lexeme: 'a. t<'a> => t<
     'a,

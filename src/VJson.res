@@ -110,5 +110,5 @@ let defaultVariableRegex = %re(`/[a-zA-Z_][a-zA-Z0-9_]*/`)
 
 let parse = s => {
   let p = VJsonParse.parseTerm->StringParser.left(StringParser.eof)
-  s->p->Belt.Result.map(snd)
+  s->p->Belt.Result.map(r => r.res)
 }

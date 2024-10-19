@@ -6,3 +6,9 @@ let keepMapDict = (dict, f) =>
   ->Belt.Array.keepMap(((k, v)) => f(v)->Belt.Option.map(v2 => (k, v2)))
   ->Js.Dict.fromArray
 let quote: string => string = s => s->Js.Json.string->Js.Json.stringify
+
+@gentype
+let tapLog = (value, description) => {
+  Js.log2(description, value)
+  value
+}

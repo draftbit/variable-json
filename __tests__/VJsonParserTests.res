@@ -24,7 +24,7 @@ let expectParseFail = (input, errMessageChecks) => input->expectParse(Error(errM
 let expectSomeParseFail = input => input->expectParseFail(_ => ())
 
 module ParserTests = {
-  Only.describe("null", () => {
+  describe("null", () => {
     test("single value", () => expectOkParse("null", Null))
     test("array", () => expectOkParse("[null, null]", Array([Null, Null])))
     test("bad array (missing closing brackets)", () =>

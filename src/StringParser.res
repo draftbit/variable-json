@@ -14,10 +14,11 @@ let opt: parser<'a> => parser<option<'a>> = parser => str =>
 let or_: (parser<'a>, parser<'a>) => parser<'a> = (parser1, parser2) => str =>
   switch str->parser1 {
   | Ok(res) => Ok(res)
-  | Error(_e1) =>
+  | Error(e1) =>
     switch str->parser2 {
     | Ok(res) => Ok(res)
-    | Error(e2) => Error(e2)
+    // Prefer the error message of whichever one consumed more input
+    | Error(e2) => Error(e1.remaining->Js.String.length < e2.remaining->Js.String.length ? e1 : e2)
     }
   }
 
@@ -81,7 +82,7 @@ let sliceN = (str, from) => str->Js.String2.sliceToEnd(~from)
 let literal: string => parser<string> = expected => str =>
   str->Js.String2.startsWith(expected)
     ? Ok({str: str->sliceN(expected->Js.String.length), res: expected})
-    : Error({expected, remaining: str}->VJsonUtil.tapLog("errrr"))
+    : Error({expected, remaining: str})
 
 let regex: (Js.Re.t, ~index: int=?, string) => parser<string> = (
   regex,

@@ -27,8 +27,8 @@ let rec parseTerm: parser<vjson> = s => {
     ->or_(parseNumber)
     ->or_(parseString->map(s => String(s)))
     ->or_(parseVariable)
-    ->or_(parseArray)
     ->or_(parseObject)
+    ->or_(parseArray)
   p(s)
 }
 and parseArray = s => {

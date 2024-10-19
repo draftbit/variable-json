@@ -109,6 +109,9 @@ let findVariables = root =>
 let defaultVariableRegex = %re(`/[a-zA-Z_][a-zA-Z0-9_]*/`)
 
 let parse = s => {
-  let p = VJsonParse.parseTerm->StringParser.left(StringParser.eof)
+  let p =
+    StringParser.whitespace
+    ->StringParser.right(VJsonParse.parseTerm)
+    ->StringParser.left(StringParser.eof)
   s->p->Belt.Result.map(r => r.res)
 }

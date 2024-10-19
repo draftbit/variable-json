@@ -1,9 +1,4 @@
-// These mess up the emacs syntax highlighter so I put them in their own module for clarity
-
-// Note: regex taken from https://rgxdb.com/r/1RSPF8MG, but the '$'
-// at the end has been omitted because it causes parse errors
-let floatRegex: Js.Re.t = %re(`/^([-+]?\d*\.?\d+)(?:[eE]([-+]?\d+))?/`)
-
-let escapedQuoteRegex = %re(`/\\\"/gm`)
-let nonEscapedQuoteRegex = %re(`/((?:^|[^\\])(?:\\{2})*)"/gm`)
-let inQuotesRegex = %re(`/"(?:[^"\\]|\\.)*"/`)
+let number = %re(`/^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?(?:[eE][+-]?\\d+)?/`)
+let string = %re(`/^"((?:[^"\\\\]|\\\\.)*)"/`)
+let escapedQuote = %re(`/\\\\"/g`)
+let variable = %re(`/[a-zA-Z_][a-zA-Z0-9_]*/`)

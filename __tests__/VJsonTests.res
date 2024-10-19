@@ -6,21 +6,16 @@ let exampleJson: Js.Json.t = %raw(`{x: 1, y: 2, z: [1, 2, "hello"], q: { x: [fal
 
 let example = {
   open VJson
-  parseWith(
-    defaultParseVariable,
-    "{
+  parse("{
        \"id\": {{id}},
        \"color\": {{color}},
        \"size\": {{size}},
-     }",
-  )
+     }")
 }->Belt.Result.getExn
 
 let moreComplexExample = {
   open VJson
-  parseWith(
-    defaultParseVariable,
-    "{
+  parse("{
        \"id\": {{id}},
        \"color\": {{color}},
        \"size\": {{size}},
@@ -29,8 +24,7 @@ let moreComplexExample = {
          \"q\": 3,
          \"z\": {{z}}
        }
-     }",
-  )
+     }")
 }->Belt.Result.getExn
 
 module FindVariablesTests = {
@@ -46,13 +40,13 @@ module MapTests = {
     test("complex with variables", () => {
       open VJson.Builder
       let vj = object_([
-        ("x", variable(1234)),
-        ("z", vjsonArray([float(1.0), number(2.0), variable(4321)])),
+        ("x", variable("1234")),
+        ("z", vjsonArray([float(1.0), number(2.0), variable("4321")])),
       ])
-      expect(vj->VJson.map(string_of_int))->toEqual(
+      expect(vj->VJson.map(s => s ++ "!!"))->toEqual(
         object_([
-          ("x", variable("1234")),
-          ("z", vjsonArray([float(1.0), number(2.0), variable("4321")])),
+          ("x", variable("1234!!")),
+          ("z", vjsonArray([float(1.0), number(2.0), variable("4321!!")])),
         ]),
       )
     })
@@ -60,8 +54,8 @@ module MapTests = {
 }
 
 module SerializeTests = {
-  let expectSerialize = (vj: vjson<string>, str) => {
-    let serialized: string = vj |> VJson.serializeWrapCurlyBraces(s => s)
+  let expectSerialize = (vj: vjson, str) => {
+    let serialized: string = VJson.serializeWrapCurlyBraces(s => s, vj)
     expect(serialized)->toEqual(str)
   }
   test("simple values", () => {
@@ -85,8 +79,8 @@ module SerializeTests = {
       ])
     }
     expect(vj->VJson.serialize(s => s))->toMatchSnapshot()
-    let serialized: string = vj |> VJson.serializeWrapCurlyBraces(s => s)
-    expect(serialized |> VJson.parseDefaultExn)->toEqual(vj)
+    let serialized: string = VJson.serializeWrapCurlyBraces(s => s, vj)
+    expect(serialized->VJson.parse->Belt.Result.getExn)->toEqual(vj)
   })
 
   test("serializing VJson without variables produces valid json", () => {
@@ -99,8 +93,8 @@ module SerializeTests = {
         ("q", object_([("x", Array([Bool(false)]))])),
       ])
     }
-    let serialized: string = vj |> VJson.serializeWrapCurlyBraces(s => s)
-    expect(serialized |> Js.Json.parseExn |> Obj.magic)->toEqual({
+    let serialized: string = VJson.serializeWrapCurlyBraces(s => s, vj)
+    expect(Obj.magic(Js.Json.parseExn(serialized)))->toEqual({
       "x": 1.0,
       "y": 2,
       "z": [1.0, 2.0],
@@ -121,10 +115,10 @@ module FromJsonTests = {
             [
               ("x", number(1.0)),
               ("y", number(2.0)),
-              ("z", [number(1.0), number(2.0), string("hello")] |> array(id)),
-              ("q", object_([("x", [false, true] |> array(bool)), ("y", null)])),
+              ("z", array(id, [number(1.0), number(2.0), string("hello")])),
+              ("q", object_([("x", array(bool, [false, true])), ("y", null)])),
             ]
-          }->JsMap.fromArray,
+          }->Js.Dict.fromArray,
         ),
       )
     )
@@ -135,24 +129,24 @@ module ToJsonTests = {
   describe("toJson", () => {
     let variableToJson: string => Js.Json.t = v =>
       switch v {
-      | "id" => Json.Encode.int(123)
-      | "color" => Json.Encode.string("pink")
-      | _ => Json.Encode.null
+      | "id" => Js.Json.number(123.0)
+      | "color" => Js.Json.string("pink")
+      | _ => Js.Json.null
       }
 
-    expect(example |> toJson(variableToJson))->toEqual(%raw(`{id: 123, size: null, color: "pink"}`))
+    expect(toJson(variableToJson)(example))->toEqual(%raw(`{id: 123, size: null, color: "pink"}`))
 
     let variableToJson: string => Js.Json.t = v =>
       switch v {
-      | "id" => Json.Encode.int(123)
-      | "color" => Json.Encode.string("pink")
-      | "x" => Json.Encode.int(-5)
-      | "y" => Json.Encode.bool(false)
-      | "z" => Json.Encode.string("yo")
-      | _ => Json.Encode.null
+      | "id" => Js.Json.number(123.0)
+      | "color" => Js.Json.string("pink")
+      | "x" => Js.Json.number(-5.0)
+      | "y" => Js.Json.boolean(false)
+      | "z" => Js.Json.string("yo")
+      | _ => Js.Json.null
       }
 
-    expect(moreComplexExample |> toJson(variableToJson))->toEqual(
+    expect(toJson(variableToJson)(moreComplexExample))->toEqual(
       %raw(`{id: 123, size: null, color: "pink", array: [-5, false], obj: {q: 3, z: "yo"}}`),
     )
   })
@@ -160,22 +154,22 @@ module ToJsonTests = {
   describe("toJsonOptional", () => {
     let variableToJson: string => option<Js.Json.t> = v =>
       switch v {
-      | "id" => Json.Encode.int(123)->Some
-      | "color" => Json.Encode.string("pink")->Some
+      | "id" => Js.Json.number(123.0)->Some
+      | "color" => Js.Json.string("pink")->Some
       | _ => None
       }
 
-    expect(example |> toJsonOptional(variableToJson))->toEqual(%raw(`{id: 123, color: "pink"}`))
+    expect(toJsonOptional(variableToJson, example))->toEqual(%raw(`{id: 123, color: "pink"}`))
 
     let variableToJson = v =>
       switch v {
-      | "id" => Json.Encode.int(123)->Some
-      | "color" => Json.Encode.string("blue")->Some
-      | "y" => Json.Encode.bool(false)->Some
+      | "id" => Js.Json.number(123.0)->Some
+      | "color" => Js.Json.string("blue")->Some
+      | "y" => Js.Json.boolean(false)->Some
       | _ => None
       }
 
-    expect(moreComplexExample |> toJsonOptional(variableToJson))->toEqual(
+    expect(toJsonOptional(variableToJson, moreComplexExample))->toEqual(
       %raw(`{id: 123, array: [null, false], color: "blue", obj: { q: 3}}`),
     )
   })

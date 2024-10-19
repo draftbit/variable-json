@@ -1,4 +1,5 @@
 include VJsonTypes
+open VJsonUtil
 
 let null = Null
 let bool = b => Bool(b)
@@ -13,13 +14,9 @@ let array = (toVJson, arr) => Array(arr->Belt.Array.map(toVJson))
 
 let vjsonArray = arr => Array(arr)
 
-let object_ = keyVals => Object(keyVals->JsMap.fromArray)
+let object_ = keyVals => Object(keyVals->Js.Dict.fromArray)
 
-let dict = (toVJson, dict) => Object(dict->JsMap.fromDict->JsMap.map(toVJson))
-
-let jsMap = (keyToString, vToVJson, m) => Object(
-  m->JsMap.mapEntries((k, v) => (k->keyToString, v->vToVJson)),
-)
+let dict = (toVJson, dict) => Object(dict->mapDict(toVJson))
 
 let rec json = j =>
   switch j->Js.Json.classify {
@@ -29,5 +26,5 @@ let rec json = j =>
   | JSONString(s) => String(s)
   | JSONNumber(n) => Number(n)
   | JSONArray(arr) => Array(arr->Belt.Array.map(json))
-  | JSONObject(obj) => Object(obj->JsMap.fromDict->JsMap.map(json))
+  | JSONObject(obj) => Object(obj->mapDict(json))
   }

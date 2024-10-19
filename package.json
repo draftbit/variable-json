@@ -30,22 +30,14 @@
   "author": "Allen Nelson <allen@draftbit.com>",
   "license": "MIT",
   "devDependencies": {
-    "@glennsl/bs-json": "https://github.com/adnelson/bs-json.git#rescript-10",
     "rescript": "^11",
     "jest": "^26.4.1",
     "lint-staged": "^10.2.11",
     "prettier": "^2.0.5",
-    "reason-jest": "^3.0.0",
-    "relude": "https://github.com/adnelson/relude.git#rescript-11.0",
-    "relude-parse": "https://github.com/adnelson/relude-parse.git#rescript-11.1",
-    "bs-bastet": "adnelson/bastet#rescript-11.0"
+    "reason-jest": "^3.0.0"
   },
   "peerDependencies": {
-    "@glennsl/bs-json": "^5.0.2",
-    "bs-platform": "^7 || ^8 || ^9",
     "rescript": "^10 || ^11",
-    "relude": "^0.59.0",
-    "relude-parse": "^0.8.0",
     "rescript-js-collections": "^1.8.2"
   },
   "lint-staged": {

@@ -6,7 +6,7 @@ let expectParse = (input, handler) =>
   switch (input->VJson.parse, handler) {
   | (Ok(vj), Ok(checks)) => vj->checks
   | (Error(err), Error(checks)) => err->checks
-  | (Error(e), Ok(_)) => failwith("Expected an Ok result, but got error: " ++ e.expected)
+  | (Error(e), Ok(_)) => failwith("Expected an Ok result, but got error: " ++ e)
   | (Ok(vj), Error(_)) =>
     failwith(
       "Expected an Error result, but successfully parsed: " ++ Js.Json.stringify(Obj.magic(vj)),
@@ -28,7 +28,7 @@ module ParserTests = {
     test("single value", () => expectOkParse("null", Null))
     test("array", () => expectOkParse("[null, null]", Array([Null, Null])))
     test("bad array (missing closing brackets)", () =>
-      expectParseFail("[ null, null", m => expect(m.expected)->toEqual(stringContaining("]")))
+      expectParseFail("[ null, null", m => expect(m)->toEqual(stringContaining("]")))
     )
     test("bad array (no comma)", () => expectSomeParseFail("[ 1 true ]"))
   })

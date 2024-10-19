@@ -113,5 +113,20 @@ let parse = s => {
     StringParser.whitespace
     ->StringParser.right(VJsonParse.parseTerm)
     ->StringParser.left(StringParser.eof)
-  s->p->Belt.Result.map(r => r.res)
+  switch s->p {
+  | Ok(r) => Ok(r.res)
+  | Error(e) => {
+      let posn = s->Js.String.length - e.remaining->Js.String.length
+      let location = switch getLineAndColumn(s, posn) {
+      | Some(lineAndCol) => renderLineAndColumn(lineAndCol)
+      | None => `position ${posn->Js.Int.toString}`
+      }
+      Error(
+        `At ${location}: Expected ${e.expected}, got ${e.remaining->Js.String2.slice(
+            ~from=0,
+            ~to_=100,
+          )}`,
+      )
+    }
+  }
 }

@@ -43,10 +43,10 @@ module MapTests = {
         ("x", variable("1234")),
         ("z", vjsonArray([float(1.0), number(2.0), variable("4321")])),
       ])
-      expect(vj->VJson.map(s => s ++ "!!"))->toEqual(
+      expect(vj->VJson.map(int_of_string))->toEqual(
         object_([
-          ("x", variable("1234!!")),
-          ("z", vjsonArray([float(1.0), number(2.0), variable("4321!!")])),
+          ("x", variable(1234)),
+          ("z", vjsonArray([float(1.0), number(2.0), variable(4321)])),
         ]),
       )
     })
@@ -54,7 +54,7 @@ module MapTests = {
 }
 
 module SerializeTests = {
-  let expectSerialize = (vj: vjson, str) => {
+  let expectSerialize = (vj: vjson<string>, str) => {
     let serialized: string = VJson.serializeWrapCurlyBraces(s => s, vj)
     expect(serialized)->toEqual(str)
   }

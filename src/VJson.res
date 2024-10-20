@@ -1,6 +1,5 @@
 // Some useful functions that operate on VJson
-module Types = VJsonTypes
-include Types
+include VJsonTypes
 module Builder = VJsonBuilder
 open VJsonUtil
 
@@ -51,7 +50,7 @@ let rec toJson = variableToJson => {
 }
 
 // Translate to JSON, given a conversion function which will optionally return a JSON value for each variable.
-let rec toJsonOptional: (string => option<Js.Json.t>, vjson) => option<Js.Json.t> = (
+let rec toJsonOptional: 'v. ('v => option<Js.Json.t>, vjson<'v>) => option<Js.Json.t> = (
   variableToJson,
   x,
 ) => {
@@ -106,12 +105,12 @@ let findVariables = root =>
     vars
   })
 
-let defaultVariableRegex = %re(`/[a-zA-Z_][a-zA-Z0-9_]*/`)
+let defaultVariableRegex = Regexes.variable
 
-let parse = s => {
+let parse = (~variableRegex=defaultVariableRegex, s) => {
   let p =
     StringParser.whitespace
-    ->StringParser.right(VJsonParse.parseTerm)
+    ->StringParser.right(VJsonParse.parseTerm(variableRegex))
     ->StringParser.left(StringParser.eof)
   switch s->p {
   | Ok(r) => Ok(r.res)

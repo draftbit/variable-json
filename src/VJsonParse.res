@@ -1,13 +1,17 @@
 open VJsonTypes
 open StringParser
 
+// NOTE: these parsers only return a `vjson` with an internal type of `string`.
+// In order to use another variable type, use VJson.map and convert the variables
+// from strings.
+
 let lit = s => literal(s)->lexeme
 
-let parseNull: parser<vjson> = lit("null")->map(_ => Null)
+let parseNull: parser<vjson<string>> = lit("null")->map(_ => Null)
 
-let parseBool: parser<vjson> = lit("true")->or_(lit("false"))->map(s => Bool(s === "true"))
+let parseBool: parser<vjson<string>> = lit("true")->or_(lit("false"))->map(s => Bool(s === "true"))
 
-let parseNumber: parser<vjson> =
+let parseNumber: parser<vjson<string>> =
   regex(Regexes.number, "a number")->map(s => Number(s->Js.Float.fromString))->lexeme
 
 let parseString: parser<string> =
@@ -15,30 +19,25 @@ let parseString: parser<string> =
   ->map(str => str->Js.String2.replaceByRe(Regexes.escapedQuote, "\""))
   ->lexeme
 
-let parseVariable: parser<vjson> =
-  between(lit("{{"), regex(Regexes.variable, "a variable")->lexeme, lit("}}"))->map(v => Variable(
-    v,
-  ))
+let parseVariable: Js.Re.t => parser<vjson<string>> = variableRegex =>
+  between(lit("{{"), regex(variableRegex, "a variable")->lexeme, lit("}}"))->map(v => Variable(v))
 
-let rec parseTerm: parser<vjson> = s => {
+let rec parseTerm: Js.Re.t => parser<vjson<string>> = variableRegex => s => {
+  let parseArray =
+    between(lit("["), manySep(parseTerm(variableRegex), lit(",")), lit("]"))->map(vjs => Array(vjs))
+  let parseKV = parseString->left(lit(":"))->and_(parseTerm(variableRegex))
+  let parseObject =
+    between(lit("{"), manySep(parseKV, lit(",")), lit("}"))->map(kvs => Object(
+      kvs->Js.Dict.fromArray,
+    ))
+
   let p =
     parseNull
     ->or_(parseBool)
     ->or_(parseNumber)
     ->or_(parseString->map(s => String(s)))
-    ->or_(parseVariable)
+    ->or_(parseVariable(variableRegex))
     ->or_(parseObject)
     ->or_(parseArray)
   p(s)
 }
-and parseArray = s => {
-  let p = between(lit("["), manySep(parseTerm, lit(",")), lit("]"))->map(vjs => Array(vjs))
-  p(s)
-}
-and parseKV = s => (parseString->left(lit(":"))->and_(parseTerm))(s)
-and parseObject = s =>
-  (
-    between(lit("{"), manySep(parseKV, lit(",")), lit("}"))->map(kvs => Object(
-      kvs->Js.Dict.fromArray,
-    ))
-  )(s)

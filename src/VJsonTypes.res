@@ -1,10 +1,10 @@
-type rec vjson =
+type rec vjson<'v> =
   | Null
   | Bool(bool)
   | Number(float)
   | String(string)
-  | Variable(string)
-  | Array(array<vjson>)
-  | Object(Js.Dict.t<vjson>)
+  | Variable('v)
+  | Array(array<vjson<'v>>)
+  | Object(Js.Dict.t<vjson<'v>>)
 
-type t = vjson
+type t<'v> = vjson<'v>

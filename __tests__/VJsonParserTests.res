@@ -21,7 +21,7 @@ let expectOkParse = (input, output) => input->expectParse(Ok(vj => expect(vj)->t
 let expectParseFail = (input, errMessageChecks) => input->expectParse(Error(errMessageChecks))
 
 // Tests failure in a generic way, just that it's an Error of some kind.
-let expectSomeParseFail = input => input->expectParseFail(_ => ())
+let expectSomeParseFail = input => input->expectParseFail(e => Js.log2("Some error", e))
 
 module ParserTests = {
   describe("null", () => {
@@ -45,6 +45,7 @@ module ParserTests = {
         }
       }`
       expectSomeParseFail(rawText)
+      // expectParseFail(rawText, m => expect(m)->toEqual(stringContaining("}}")))
     })
   })
 

@@ -20,16 +20,21 @@ let parseString: parser<string> =
   ->lexeme
 
 let parseVariable: Js.Re.t => parser<vjson<string>> = variableRegex =>
-  between(lit("{{"), regex(variableRegex, "a variable")->lexeme, lit("}}"))->map(v => Variable(v))
+  lit("{{")
+  ->right(regex(variableRegex, "a variable")->lexeme)
+  ->left(lit("}}"))
+  ->map(v => Variable(v))
 
 let rec parseTerm: Js.Re.t => parser<vjson<string>> = variableRegex => s => {
   let parseArray =
-    between(lit("["), manySep(parseTerm(variableRegex), lit(",")), lit("]"))->map(vjs => Array(vjs))
+    lit("[")
+    ->right(manySepEnd(parseTerm(variableRegex), ~sep=lit(","), ~end_=lit("]")))
+    ->map(vjs => Array(vjs))
   let parseKV = parseString->left(lit(":"))->and_(parseTerm(variableRegex))
   let parseObject =
-    between(lit("{"), manySep(parseKV, lit(",")), lit("}"))->map(kvs => Object(
-      kvs->Js.Dict.fromArray,
-    ))
+    lit("{")
+    ->right(manySepEnd(parseKV, ~sep=lit(","), ~end_=lit("}")))
+    ->map(kvs => Object(kvs->Js.Dict.fromArray))
 
   let p =
     parseNull

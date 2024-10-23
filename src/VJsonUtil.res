@@ -7,6 +7,8 @@ let keepMapDict = (dict, f) =>
   ->Js.Dict.fromArray
 let quote: string => string = s => s->Js.Json.string->Js.Json.stringify
 
+let concatIfNotIncluded = (str, str2) => str->Js.String2.includes(str2) ? str : str ++ str2
+
 @gentype
 let tapLog = (value, description) => {
   Js.log2(description, value)

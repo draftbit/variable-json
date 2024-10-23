@@ -1,3 +1,5 @@
+open VJsonUtil
+
 type success<'res> = {str: string, res: 'res}
 type failure = {expected: string, remaining: string}
 type parser<'res> = string => result<success<'res>, failure>
@@ -33,48 +35,56 @@ let left: (parser<'a>, parser<_>) => parser<'a> = (parser1, parser2) =>
   parser1->and_(parser2)->map(fst)
 let right: (parser<_>, parser<'a>) => parser<'a> = (parser1, parser2) =>
   parser1->and_(parser2)->map(snd)
-let between: 'a 'b 'c. (parser<'a>, parser<'b>, parser<'c>) => parser<'b> = (l, parser, r) =>
-  l->and_(parser)->and_(r)->map((((_, res), _)) => res)
 
-let many: 'a. parser<'a> => parser<array<'a>> = parser => startStr => {
+// Parse as many items of the first parser as possible. After each parse, attempt to
+// parse a separator. If successful, keep parsing. Otherwise, parse with the end parser.
+let manySepEnd: 'a. (parser<'a>, ~sep: parser<_>, ~end_: parser<_>) => parser<array<'a>> = (
+  parser,
+  ~sep,
+  ~end_,
+) => startStr => {
   let results = []
   let str = ref(startStr)
   let keepGoing = ref(true)
-  while keepGoing.contents {
-    switch str.contents->parser {
-    | Ok({str: next, res}) => {
-        results->Js.Array2.push(res)->ignore
-        str := next
-      }
-    | Error(_) => keepGoing := false
+  let error = ref(None)
+  let endLoop = (lastError, ~combine) => {
+    keepGoing := false
+    switch str.contents->end_ {
+    // The results we parsed are only valid if the endParser also matches.
+    | Ok({str: next}) => str := next
+    // Otherwise, the last failure is the "real" error.
+    | Error(e) =>
+      error :=
+        Some(
+          combine
+            ? {...lastError, expected: lastError.expected->concatIfNotIncluded(` OR ${e.expected}`)}
+            : lastError,
+        )
     }
   }
-  Ok({str: str.contents, res: results})
-}
 
-let many1: 'a. parser<'a> => parser<array<'a>> = parser =>
-  parser->and_(many(parser))->map(((first, rest)) => [first]->Js.Array2.concat(rest))
-
-let manySep: 'a. (parser<'a>, parser<_>) => parser<array<'a>> = (parser, sepParser) => startStr => {
-  let results = []
-  let str = ref(startStr)
-  let keepGoing = ref(true)
   while keepGoing.contents {
     switch str.contents->parser {
     | Ok({str: next, res}) => {
         results->Js.Array2.push(res)->ignore
-        switch next->sepParser {
+        switch next->sep {
         | Ok({str: next2}) => str := next2
-        | _ => {
+        | Error(e) => {
             str := next
-            keepGoing := false
+            // After a successful item parse, either a separator or an end parse is
+            // valid, so if both fail, combine their errors
+            endLoop(e, ~combine=true)
           }
         }
       }
-    | Error(_) => keepGoing := false
+    // If the item parse fails, only an end parse is valid, don't combine errors
+    | Error(e) => endLoop(e, ~combine=false)
     }
   }
-  Ok({str: str.contents, res: results})
+  switch error.contents {
+  | None => Ok({str: str.contents, res: results})
+  | Some(e) => Error(e)
+  }
 }
 
 let sliceN = (str, from) => str->Js.String2.sliceToEnd(~from)
@@ -82,7 +92,7 @@ let sliceN = (str, from) => str->Js.String2.sliceToEnd(~from)
 let literal: string => parser<string> = expected => str =>
   str->Js.String2.startsWith(expected)
     ? Ok({str: str->sliceN(expected->Js.String.length), res: expected})
-    : Error({expected, remaining: str})
+    : Error({expected: expected->quote, remaining: str})
 
 let regex: (Js.Re.t, ~index: int=?, string) => parser<string> = (
   regex,
@@ -100,7 +110,7 @@ let regex: (Js.Re.t, ~index: int=?, string) => parser<string> = (
   | _ => Error({expected: description, remaining: str})
   }
 
-let whitespace: parser<string> = regex(%re(`/^\s*/`), "whitespace")
+let whitespace: parser<string> = regex(Regexes.whitespace, "whitespace")
 
 let lexeme: parser<'a> => parser<'a> = parser => left(parser, whitespace)
 

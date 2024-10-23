@@ -115,17 +115,15 @@ let parse = (~variableRegex=defaultVariableRegex, s) => {
   switch s->p {
   | Ok(r) => Ok(r.res)
   | Error(e) => {
-      let posn = s->Js.String.length - e.remaining->Js.String.length
+      let posn = s->Js.String.length - e.remaining->Js.String.length - 1
       let location = switch getLineAndColumn(s, posn) {
       | Some(lineAndCol) => renderLineAndColumn(lineAndCol)
       | None => `position ${posn->Js.Int.toString}`
       }
-      Error(
-        `At ${location}: Expected ${e.expected}, got ${e.remaining->Js.String2.slice(
-            ~from=0,
-            ~to_=100,
-          )}`,
-      )
+      let remaining =
+        e.remaining->Js.String2.replaceByRe(%re(`/\s+/`), " ")->Js.String2.slice(~from=0, ~to_=20)
+      let remaining = remaining === "" ? "end of file" : remaining->quote
+      Error(`At ${location}: Expected ${e.expected} but got ${remaining}`)
     }
   }
 }

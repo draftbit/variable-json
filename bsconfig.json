@@ -1,6 +1,6 @@
 {
   "name": "@draftbit/variable-json",
-  "version": "0.8.1",
+  "version": "2.2.2",
   "sources": [
     {
       "dir": "src",
@@ -17,11 +17,7 @@
     "in-source": true
   },
   "suffix": ".bs.js",
-  "bs-dependencies": [
-    "@glennsl/bs-json",
-    "rescript-js-collections",
-    "relude-parse"
-  ],
+  "bs-dependencies": [],
   "bs-dev-dependencies": ["reason-jest"],
   "warnings": {
     "number": "-44-23",

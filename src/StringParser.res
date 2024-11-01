@@ -106,8 +106,8 @@ let regex: (Js.Re.t, ~index: int=?, string) => parser<string> = (
   switch str->Js.String2.match_(regex) {
   | Some(arr) =>
     Ok({
-      str: str->sliceN(arr[0]->Belt.Option.getExn->Js.String.length),
-      res: arr[index]->Belt.Option.getExn,
+      str: str->sliceN(arr->Belt.Array.get(0)->Belt.Option.getExn->Js.String.length),
+      res: arr->Belt.Array.get(index)->Belt.Option.getExn,
     })
   | _ => Error({expected: description, remaining: str})
   }

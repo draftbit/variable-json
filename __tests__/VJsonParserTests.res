@@ -30,7 +30,9 @@ module ParserTests = {
     test("bad array (missing closing brackets)", () =>
       expectParseFail("[ null, null", m => expect(m)->toEqual(stringContaining("]")))
     )
-    test("bad array (no comma)", () => expectSomeParseFail("[ 1 true ]"))
+    test("bad array (no comma)", () =>
+      expectParseFail("[ 1 true ]", m => expect(m)->toEqual(stringContaining("true ]")))
+    )
   })
 
   describe("known failure cases", () => {
@@ -44,8 +46,7 @@ module ParserTests = {
           "My Notes": {{notes}}
         }
       }`
-      expectSomeParseFail(rawText)
-      // expectParseFail(rawText, m => expect(m)->toEqual(stringContaining("}}")))
+      expectParseFail(rawText, m => expect(m)->toEqual(stringContaining("}}")))
     })
   })
 
@@ -73,6 +74,14 @@ module ParserTests = {
     test("unicode", () =>
       expectOkParse("\"世界こんにちは！\"", String("世界こんにちは！"))
     )
+    test("Nested string", () => {
+      expectOkParse(
+        "{\"query\": \"query foo() {bar({attribute: \\\"categoryId\\\"})}\"}",
+        Object(
+          Js.Dict.fromArray([("query", String("query foo() {bar({attribute: \"categoryId\"})}"))]),
+        ),
+      )
+    })
   })
 
   describe("variables", () => {

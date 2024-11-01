@@ -857,21 +857,10 @@ browser-process-hrtime@^1.0.0:
   resolved "https://registry.yarnpkg.com/browser-process-hrtime/-/browser-process-hrtime-1.0.0.tgz#3c9b4b7d782c8121e56f10106d84c0d0ffc94626"
   integrity sha512-9o5UecI3GhkpM6DrXr69PblIuWxPKk9Y0jHBRhdocZ2y7YECBFCsHm79Pr3OyR2AvjhDkabFJaDJMYRazHgsow==
 
-bs-bastet@adnelson/bastet#no-bisect:
-  version "1.2.5"
-  resolved "https://codeload.github.com/adnelson/bastet/tar.gz/b40c7d8eeb85f22c507e340f850ff7e3ec161c4c"
-  dependencies:
-    bs-stdlib-shims "^0.1.0"
-
 bs-platform@^9.0.2:
   version "9.0.2"
   resolved "https://registry.yarnpkg.com/bs-platform/-/bs-platform-9.0.2.tgz#a6eac70eb8924a322556dacaccbfbc9b2a0d3a37"
   integrity sha512-Ye9JqJ4Oa7mcjjoOVRYI8Uc2Cf8N7jQLWDcdUplY7996d/YErSR7WitmV7XnSwr4EvdrbwjEsg1NxNjUQv3ChA==
-
-bs-stdlib-shims@^0.1.0:
-  version "0.1.0"
-  resolved "https://registry.yarnpkg.com/bs-stdlib-shims/-/bs-stdlib-shims-0.1.0.tgz#f64166392652a07c37b9be462beebb6c0c66a74e"
-  integrity sha512-CszWow8iXOKgmzNCc5dR3kERaqzIp3f4nbV7lJF5vS9BHm70GqLlu7OBE/VCPKZ5noG1VtJAIVqIdLFqUdIRUQ==
 
 bser@2.1.1:
   version "2.1.1"
@@ -2971,16 +2960,6 @@ regex-not@^1.0.0, regex-not@^1.0.2:
     extend-shallow "^3.0.2"
     safe-regex "^1.1.0"
 
-relude-parse@^0.8.0:
-  version "0.8.0"
-  resolved "https://registry.yarnpkg.com/relude-parse/-/relude-parse-0.8.0.tgz#6aa7e2b1d5bc1b28d4ee2eb0a304c63f73fad25c"
-  integrity sha512-KsPpD4Wi5Nswe9FpeT5I2/DvD+pClgB6kmVXYqd94WrS6wxsxHUyl0ueSGWTTjbsrubNSph2YtxD1zElIGdBbA==
-
-relude@^0.59.0:
-  version "0.59.0"
-  resolved "https://registry.yarnpkg.com/relude/-/relude-0.59.0.tgz#b396ecd5ec4d8cd974782d4bf4b1af1d3fafb378"
-  integrity sha512-Rc+Lr2SjsGJAejuF7yHqzk3Gsr0Ha4JpdRTn+17DYxbQjLVNHPcO24JSGBHaADdyHJMuNbCHqr/1O+LWb2eIaQ==
-
 remove-trailing-separator@^1.0.1:
   version "1.1.0"
   resolved "https://registry.yarnpkg.com/remove-trailing-separator/-/remove-trailing-separator-1.1.0.tgz#c24bce2a283adad5bc3f58e0d48249b92379d8ef"
@@ -3047,11 +3026,6 @@ require-main-filename@^2.0.0:
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/require-main-filename/-/require-main-filename-2.0.0.tgz#d0b329ecc7cc0f61649f62215be69af54aa8989b"
   integrity sha512-NKN5kMDylKuldxYLSUfrbo5Tuzh4hd+2E8NPPX02mZtn1VuREQToYe/ZdlJy+J3uCpfaiGF05e7B8W0iXbQHmg==
-
-rescript-js-collections@^1.8.2:
-  version "1.8.2"
-  resolved "https://registry.yarnpkg.com/rescript-js-collections/-/rescript-js-collections-1.8.2.tgz#b75a331f3b3046a3c800b6d812c20a3adc0d2fbe"
-  integrity sha512-ngyYsu6yfgvONCmjstx+ImH+VtX2HcxY4KrQEoR488nVoMtJRfIzp8vGcExsh8yuILLE/AHABxeJmppwodcEBg==
 
 resolve-cwd@^3.0.0:
   version "3.0.0"

@@ -35,16 +35,11 @@
     "jest": "^26.4.1",
     "lint-staged": "^10.2.11",
     "prettier": "^2.0.5",
-    "reason-jest": "^2.2.0",
-    "relude": "^0.59.0",
-    "relude-parse": "^0.8.0"
+    "reason-jest": "^2.2.0"
   },
   "peerDependencies": {
     "@glennsl/bs-json": "^5.0.2",
-    "bs-platform": "^7 || ^8 || ^9",
-    "relude": "^0.59.0",
-    "relude-parse": "^0.8.0",
-    "rescript-js-collections": "^1.8.2"
+    "bs-platform": "^7 || ^8 || ^9"
   },
   "lint-staged": {
     "*.{re,rei}": [
@@ -56,11 +51,5 @@
     "*.{json,yaml}": [
       "prettier --write"
     ]
-  },
-  "resolutions": {
-    "bs-bastet": "adnelson/bastet#no-bisect"
-  },
-  "dependencies": {
-    "rescript-js-collections": "^1.8.2"
   }
 }
